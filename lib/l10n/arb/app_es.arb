@@ -1,0 +1,9 @@
+{
+  "@@locale": "es",
+  "appTitle": "Nostr Place",
+  "welcomeTitle": "Nostr Place",
+  "welcomeSubtitle": "Lienzo Colaborativo de Píxeles",
+  "loading": "Cargando...",
+  "error": "Ocurrió un error",
+  "retry": "Reintentar"
+}

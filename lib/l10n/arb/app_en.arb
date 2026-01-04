@@ -1,0 +1,27 @@
+{
+  "@@locale": "en",
+  "appTitle": "Nostr Place",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "welcomeTitle": "Nostr Place",
+  "@welcomeTitle": {
+    "description": "Welcome title on the home page"
+  },
+  "welcomeSubtitle": "Collaborative Pixel Canvas",
+  "@welcomeSubtitle": {
+    "description": "Subtitle describing the app"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Generic loading message"
+  },
+  "error": "An error occurred",
+  "@error": {
+    "description": "Generic error message"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Button text to retry an action"
+  }
+}

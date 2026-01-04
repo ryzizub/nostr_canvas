@@ -1,0 +1,15 @@
+# flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  # Use single image for web favicon only
+  image_path: "assets/launcher-icons/icon.png"
+
+  # Platform configuration - web only
+  android: false
+  ios: false
+
+  # Web configuration - ONLY favicon
+  web:
+    generate: true
+    image_path: "assets/launcher-icons/icon.png"
+    background_color: "#121212"
+    theme_color: "#8B5CF6"

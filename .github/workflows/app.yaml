@@ -1,0 +1,41 @@
+name: app
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/app.yaml"
+  pull_request:
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/app.yaml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install Dependencies
+        run: flutter packages get
+
+      - name: Format
+        run: dart format --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze lib test
+
+      - name: Run tests
+        run: flutter test
