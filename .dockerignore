@@ -1,0 +1,30 @@
+# Build outputs
+build/
+.dart_tool/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Git
+.git/
+.gitignore
+
+# Tests and coverage
+coverage/
+test/
+integration_test/
+
+# Misc
+.DS_Store
+*.log
+.metadata
+.packages
+.pub-cache/
+.pub/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
