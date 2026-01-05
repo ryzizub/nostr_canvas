@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nostr_place/canvas/canvas.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -7,27 +7,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/',
       name: 'home',
-      builder: (context, state) => const _PlaceholderHomePage(),
+      builder: (context, state) => const CanvasPage(),
     ),
   ],
 );
-
-class _PlaceholderHomePage extends StatelessWidget {
-  const _PlaceholderHomePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nostr Place'),
-      ),
-      body: const Center(
-        child: Text(
-          'Welcome to Nostr Place\n\nCollaborative Pixel Canvas',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
-    );
-  }
-}

@@ -1,0 +1,27 @@
+import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
+import 'package:nostr_place/canvas/data/models/position.dart';
+
+/// Renders a single pixel on the canvas.
+class PixelComponent extends RectangleComponent {
+  PixelComponent({
+    required Position position,
+    required Color color,
+  }) : super(
+         position: Vector2(
+           position.x.toDouble() * 10,
+           position.y.toDouble() * 10,
+         ), // Scale up by 10x
+         size: Vector2.all(10), // 10x10 unit size - easier to see!
+         paint: Paint()
+           ..color = color
+           ..isAntiAlias = false
+           ..style = PaintingStyle.fill,
+       );
+
+  Color get color => paint.color;
+
+  set color(Color value) {
+    paint.color = value;
+  }
+}
