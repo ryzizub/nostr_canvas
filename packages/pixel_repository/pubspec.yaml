@@ -6,6 +6,8 @@ publish_to: 'none'
 environment:
   sdk: ^3.9.0
 
+resolution: workspace
+
 dependencies:
   equatable: ^2.0.7
   flutter:
