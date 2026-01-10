@@ -6,6 +6,7 @@ import 'package:flame/game.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
+import 'package:nostr_place/canvas/canvas_constants.dart';
 import 'package:nostr_place/canvas/game/components/pixel_grid_component.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
@@ -16,8 +17,6 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
   final CanvasBloc canvasBloc;
   CameraComponent? _cameraComponent;
 
-  // Pan threshold to distinguish taps from drags
-  static const double _panThreshold = 5;
   Vector2? _panStartPosition;
   bool _isPanning = false;
 
@@ -84,7 +83,7 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     final totalDelta = currentPos - _panStartPosition!;
 
     // Only start panning if threshold exceeded
-    if (!_isPanning && totalDelta.length > _panThreshold) {
+    if (!_isPanning && totalDelta.length > CanvasConstants.panThreshold) {
       _isPanning = true;
     }
 
@@ -106,8 +105,13 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
   void onScroll(PointerScrollInfo info) {
     // Scroll up (negative) = zoom in, scroll down (positive) = zoom out
     final scrollDelta = info.scrollDelta.global.y;
-    final zoomFactor = scrollDelta > 0 ? 0.9 : 1.1;
-    final newZoom = (camera.viewfinder.zoom * zoomFactor).clamp(0.1, 100.0);
+    final zoomFactor = scrollDelta > 0
+        ? CanvasConstants.scrollZoomOutFactor
+        : CanvasConstants.scrollZoomInFactor;
+    final newZoom = (camera.viewfinder.zoom * zoomFactor).clamp(
+      CanvasConstants.minZoom,
+      CanvasConstants.maxZoom,
+    );
     camera.viewfinder.zoom = newZoom;
   }
 
@@ -117,8 +121,8 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
 
     if (hasLayout) {
       // Set initial position to center of canvas
-      final centerX = canvasData.width * 10.0 / 2;
-      final centerY = canvasData.height * 10.0 / 2;
+      final centerX = canvasData.width * CanvasConstants.tileSize / 2;
+      final centerY = canvasData.height * CanvasConstants.tileSize / 2;
       camera.viewfinder.position = Vector2(centerX, centerY);
 
       // Set initial zoom
@@ -143,23 +147,23 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     if (state.status != CanvasStatus.ready) return;
 
     final canvasHeightInPixels = state.canvasData!.height;
-    final targetPixelsToShow = canvasHeightInPixels < 50
-        ? canvasHeightInPixels
-        : 50;
+    final targetPixels =
+        canvasHeightInPixels < CanvasConstants.targetPixelsToShow
+            ? canvasHeightInPixels
+            : CanvasConstants.targetPixelsToShow;
 
-    // Each pixel is 10 units in world space
-    final worldHeight = targetPixelsToShow * 10.0;
+    final worldHeight = targetPixels * CanvasConstants.tileSize;
 
-    // Calculate zoom to show target pixels vertically (with 90% padding)
-    camera.viewfinder.zoom = (screenSize.y * 0.9) / worldHeight;
+    // Calculate zoom to show target pixels vertically (with padding)
+    camera.viewfinder.zoom =
+        (screenSize.y * CanvasConstants.zoomPaddingFactor) / worldHeight;
   }
 
   /// Convert screen tap to grid position.
   Position screenToGridPosition(Vector2 screenPosition) {
     final worldPosition = camera.globalToLocal(screenPosition);
-    // Each pixel is 10x10 units, so divide by 10 to get grid coordinates
-    final gridX = (worldPosition.x / 10).floor();
-    final gridY = (worldPosition.y / 10).floor();
+    final gridX = (worldPosition.x / CanvasConstants.tileSize).floor();
+    final gridY = (worldPosition.y / CanvasConstants.tileSize).floor();
 
     return Position(gridX, gridY);
   }

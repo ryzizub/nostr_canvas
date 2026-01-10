@@ -3,11 +3,12 @@ import 'package:flame/events.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
+import 'package:nostr_place/canvas/canvas_constants.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
-import 'package:pixel_repository/pixel_repository.dart';
 import 'package:nostr_place/canvas/game/components/click_highlight_component.dart';
 import 'package:nostr_place/canvas/game/components/grid_lines_component.dart';
 import 'package:nostr_place/canvas/game/components/pixel_component.dart';
+import 'package:pixel_repository/pixel_repository.dart';
 
 /// Renders the entire pixel grid and handles user interactions.
 class PixelGridComponent extends PositionComponent
@@ -18,8 +19,8 @@ class PixelGridComponent extends PositionComponent
   PixelGridComponent()
     : super(
         position: Vector2.zero(),
-        size: Vector2(100, 100), // 10x10 grid * 10 pixels each
-        // Use default topLeft anchor so pixel coordinates map directly to world
+        // Initial size will be updated when canvas data is loaded
+        size: Vector2.zero(),
       );
 
   final Map<String, PixelComponent> _pixelComponents = {};
@@ -45,8 +46,8 @@ class PixelGridComponent extends PositionComponent
   void _updateCanvasSize(CanvasData canvasData) {
     // Update component size to match canvas dimensions
     size = Vector2(
-      canvasData.width * 10.0,
-      canvasData.height * 10.0,
+      canvasData.width * CanvasConstants.tileSize,
+      canvasData.height * CanvasConstants.tileSize,
     );
 
     // Remove old grid lines and add new ones with correct dimensions
@@ -95,9 +96,8 @@ class PixelGridComponent extends PositionComponent
   @override
   void onTapDown(TapDownEvent event) {
     // event.localPosition is already in component's local coordinates
-    // Just divide by 10 to get grid position
-    final gridX = (event.localPosition.x / 10).floor();
-    final gridY = (event.localPosition.y / 10).floor();
+    final gridX = (event.localPosition.x / CanvasConstants.tileSize).floor();
+    final gridY = (event.localPosition.y / CanvasConstants.tileSize).floor();
     final gridPosition = Position(gridX, gridY);
 
     // Add visual feedback for the click

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nostr_place/canvas/canvas_constants.dart';
 import 'package:nostr_place/canvas/game/canvas_game_bridge.dart';
 
 class ZoomControls extends StatefulWidget {
@@ -16,13 +17,19 @@ class ZoomControls extends StatefulWidget {
 class _ZoomControlsState extends State<ZoomControls> {
   void _zoomIn() {
     final currentZoom = widget.bridge.game.zoom;
-    final newZoom = (currentZoom * 1.2).clamp(0.1, 50.0);
+    final newZoom = (currentZoom * CanvasConstants.zoomInFactor).clamp(
+      CanvasConstants.minZoom,
+      CanvasConstants.maxZoom,
+    );
     widget.bridge.updateZoom(newZoom);
   }
 
   void _zoomOut() {
     final currentZoom = widget.bridge.game.zoom;
-    final newZoom = (currentZoom / 1.2).clamp(0.1, 50.0);
+    final newZoom = (currentZoom / CanvasConstants.zoomInFactor).clamp(
+      CanvasConstants.minZoom,
+      CanvasConstants.maxZoom,
+    );
     widget.bridge.updateZoom(newZoom);
   }
 

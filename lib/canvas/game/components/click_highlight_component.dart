@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:nostr_place/canvas/canvas_constants.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 /// Displays a highlight border around a recently clicked pixel.
@@ -8,10 +9,10 @@ class ClickHighlightComponent extends PositionComponent {
     required Position gridPosition,
   }) : super(
          position: Vector2(
-           gridPosition.x * 10.0,
-           gridPosition.y * 10.0,
+           gridPosition.x * CanvasConstants.tileSize,
+           gridPosition.y * CanvasConstants.tileSize,
          ),
-         size: Vector2.all(10),
+         size: Vector2.all(CanvasConstants.tileSize),
        );
 
   static const _borderWidth = 1.0;
