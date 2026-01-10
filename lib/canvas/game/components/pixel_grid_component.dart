@@ -27,6 +27,13 @@ class PixelGridComponent extends PositionComponent
 
   final Map<String, PixelComponent> _pixelComponents = {};
   GridLinesComponent? _gridLines;
+  int _currentGridWidth = 0;
+  int _currentGridHeight = 0;
+
+  @override
+  bool listenWhen(CanvasState previousState, CanvasState newState) {
+    return previousState.canvasData != newState.canvasData;
+  }
 
   @override
   void onInitialState(CanvasState state) {
@@ -46,6 +53,15 @@ class PixelGridComponent extends PositionComponent
   }
 
   Future<void> _updateCanvasSize(CanvasData canvasData) async {
+    // Skip if dimensions haven't changed
+    if (_currentGridWidth == canvasData.width &&
+        _currentGridHeight == canvasData.height) {
+      return;
+    }
+
+    _currentGridWidth = canvasData.width;
+    _currentGridHeight = canvasData.height;
+
     // Update component size to match canvas dimensions
     size = Vector2(
       canvasData.width * CanvasConstants.tileSize,
