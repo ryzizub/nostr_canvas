@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nostr_place/canvas/data/models/position.dart';
+import 'package:pixel_repository/pixel_repository.dart';
 
 void main() {
   group('Position', () {

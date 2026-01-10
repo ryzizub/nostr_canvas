@@ -6,8 +6,8 @@ import 'package:flame/game.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
-import 'package:nostr_place/canvas/data/models/models.dart';
 import 'package:nostr_place/canvas/game/components/pixel_grid_component.dart';
+import 'package:pixel_repository/pixel_repository.dart';
 
 /// Main FlameGame for the pixel canvas.
 class CanvasGame extends FlameGame with PanDetector, ScrollDetector {

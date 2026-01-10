@@ -1,4 +1,5 @@
-import 'package:nostr_place/canvas/data/models/models.dart';
+import 'package:pixel_repository/src/models/canvas_data.dart';
+import 'package:pixel_repository/src/models/pixel.dart';
 
 /// Repository for pixel data storage and retrieval.
 /// Currently in-memory, designed for future Nostr integration.

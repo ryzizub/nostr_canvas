@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:nostr_place/canvas/data/models/position.dart';
+import 'package:pixel_repository/src/models/position.dart';
 
 /// Represents a pixel on the canvas.
 class Pixel extends Equatable {

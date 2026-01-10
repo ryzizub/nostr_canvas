@@ -1,0 +1,12 @@
+name: pixel_repository
+description: Pixel canvas repository and models for Nostr Place
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  equatable: ^2.0.7
+  flutter:
+    sdk: flutter

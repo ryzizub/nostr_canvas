@@ -1,8 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:nostr_place/canvas/data/models/models.dart';
-import 'package:nostr_place/canvas/data/repositories/pixel_repository.dart';
+import 'package:pixel_repository/pixel_repository.dart';
 
 part 'canvas_event.dart';
 part 'canvas_state.dart';

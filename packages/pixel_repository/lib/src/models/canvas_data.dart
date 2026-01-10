@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:nostr_place/canvas/data/models/pixel.dart';
-import 'package:nostr_place/canvas/data/models/position.dart';
+import 'package:pixel_repository/src/models/pixel.dart';
+import 'package:pixel_repository/src/models/position.dart';
 
 /// Immutable representation of canvas state.
 class CanvasData extends Equatable {

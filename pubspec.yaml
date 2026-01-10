@@ -9,6 +9,8 @@ environment:
 dependencies:
   bloc: ^9.1.0
   equatable: ^2.0.7
+  pixel_repository:
+    path: packages/pixel_repository
   flame: ^1.34.0
   flame_bloc: ^1.12.19
   flutter:
