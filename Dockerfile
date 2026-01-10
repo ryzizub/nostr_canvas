@@ -3,14 +3,11 @@ FROM ghcr.io/cirruslabs/flutter:stable AS build
 
 WORKDIR /app
 
-# Copy pubspec files first for better caching
-COPY pubspec.yaml pubspec.lock ./
+# Copy source code
+COPY . .
 
 # Get dependencies
 RUN flutter pub get
-
-# Copy the rest of the app
-COPY . .
 
 # Build web release
 RUN flutter build web --release
