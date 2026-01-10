@@ -80,8 +80,9 @@ void main() {
       blocTest<CanvasBloc, CanvasState>(
         'does nothing when status is not ready',
         setUp: () {
-          when(() => pixelRepository.placePixel(any()))
-              .thenAnswer((_) async {});
+          when(
+            () => pixelRepository.placePixel(any()),
+          ).thenAnswer((_) async {});
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
         act: (bloc) => bloc.add(
@@ -96,8 +97,9 @@ void main() {
       blocTest<CanvasBloc, CanvasState>(
         'emits updated state with new pixel',
         setUp: () {
-          when(() => pixelRepository.placePixel(any()))
-              .thenAnswer((_) async {});
+          when(
+            () => pixelRepository.placePixel(any()),
+          ).thenAnswer((_) async {});
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
         seed: () => const CanvasState(
@@ -129,8 +131,9 @@ void main() {
       blocTest<CanvasBloc, CanvasState>(
         'preserves zoom and camera offset when placing pixel',
         setUp: () {
-          when(() => pixelRepository.placePixel(any()))
-              .thenAnswer((_) async {});
+          when(
+            () => pixelRepository.placePixel(any()),
+          ).thenAnswer((_) async {});
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
         seed: () => const CanvasState(

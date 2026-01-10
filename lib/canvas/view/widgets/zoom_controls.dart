@@ -9,8 +9,7 @@ class ZoomControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CanvasBloc, CanvasState>(
-      buildWhen: (previous, current) =>
-          previous.zoomLevel != current.zoomLevel,
+      buildWhen: (previous, current) => previous.zoomLevel != current.zoomLevel,
       builder: (context, state) {
         return Column(
           mainAxisSize: MainAxisSize.min,

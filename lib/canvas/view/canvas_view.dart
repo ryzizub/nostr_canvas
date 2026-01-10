@@ -26,11 +26,11 @@ class _CanvasViewState extends State<CanvasView> {
           return switch (state.status) {
             CanvasStatus.initial => const SizedBox.shrink(),
             CanvasStatus.loading => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: CircularProgressIndicator(),
+            ),
             CanvasStatus.error => Center(
-                child: Text('Error: ${state.errorMessage}'),
-              ),
+              child: Text('Error: ${state.errorMessage}'),
+            ),
             CanvasStatus.ready => _buildCanvas(context),
           };
         },
