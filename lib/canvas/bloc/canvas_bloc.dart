@@ -10,7 +10,7 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
   CanvasBloc({
     required PixelRepository pixelRepository,
   }) : _pixelRepository = pixelRepository,
-       super(const CanvasInitial()) {
+       super(const CanvasState()) {
     on<CanvasLoadRequested>(_onLoadRequested);
     on<PixelPlaced>(_onPixelPlaced);
     on<ZoomChanged>(_onZoomChanged);
@@ -23,13 +23,20 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     CanvasLoadRequested event,
     Emitter<CanvasState> emit,
   ) async {
-    emit(const CanvasLoading());
+    emit(state.copyWith(status: CanvasStatus.loading));
 
     try {
       final canvasData = await _pixelRepository.loadCanvas();
-      emit(CanvasReady(canvasData: canvasData));
+      emit(
+        state.copyWith(status: CanvasStatus.ready, canvasData: canvasData),
+      );
     } on Exception catch (error) {
-      emit(CanvasError(error.toString()));
+      emit(
+        state.copyWith(
+          status: CanvasStatus.error,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -37,9 +44,7 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     PixelPlaced event,
     Emitter<CanvasState> emit,
   ) async {
-    if (state is! CanvasReady) return;
-
-    final currentState = state as CanvasReady;
+    if (state.status != CanvasStatus.ready) return;
 
     final pixel = Pixel(
       position: event.position,
@@ -50,12 +55,16 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     try {
       await _pixelRepository.placePixel(pixel);
 
-      final updatedCanvas = currentState.canvasData.placePixel(pixel);
+      final updatedCanvas = state.canvasData!.placePixel(pixel);
 
-      emit(currentState.copyWith(canvasData: updatedCanvas));
-    } on Exception {
-      // Silently fail - pixel just doesn't appear
-      // Could emit error state or show snackbar in UI
+      emit(state.copyWith(canvasData: updatedCanvas));
+    } on Exception catch (error) {
+      emit(
+        state.copyWith(
+          status: CanvasStatus.error,
+          errorMessage: error.toString(),
+        ),
+      );
     }
   }
 
@@ -63,19 +72,17 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     ZoomChanged event,
     Emitter<CanvasState> emit,
   ) {
-    if (state is! CanvasReady) return;
+    if (state.status != CanvasStatus.ready) return;
 
-    final currentState = state as CanvasReady;
-    emit(currentState.copyWith(zoomLevel: event.zoomLevel));
+    emit(state.copyWith(zoomLevel: event.zoomLevel));
   }
 
   void _onCanvasPanned(
     CanvasPanned event,
     Emitter<CanvasState> emit,
   ) {
-    if (state is! CanvasReady) return;
+    if (state.status != CanvasStatus.ready) return;
 
-    final currentState = state as CanvasReady;
-    emit(currentState.copyWith(cameraOffset: event.offset));
+    emit(state.copyWith(cameraOffset: event.offset));
   }
 }

@@ -52,15 +52,15 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
 
     // Handle initial state if already ready
     final currentState = canvasBloc.state;
-    if (currentState is CanvasReady) {
-      _updateCameraForCanvas(currentState.canvasData);
+    if (currentState.status == CanvasStatus.ready) {
+      _updateCameraForCanvas(currentState.canvasData!);
     } else {
       // Wait for canvas to be ready (intentionally not awaited)
       unawaited(
-        canvasBloc.stream.firstWhere((s) => s is CanvasReady).then((state) {
-          if (state is CanvasReady) {
-            _updateCameraForCanvas(state.canvasData);
-          }
+        canvasBloc.stream
+            .firstWhere((s) => s.status == CanvasStatus.ready)
+            .then((state) {
+          _updateCameraForCanvas(state.canvasData!);
         }),
       );
     }
@@ -133,16 +133,16 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
 
     // Update camera position and zoom when screen resizes
     final state = canvasBloc.state;
-    if (state is CanvasReady) {
-      _updateCameraForCanvas(state.canvasData);
+    if (state.status == CanvasStatus.ready) {
+      _updateCameraForCanvas(state.canvasData!);
     }
   }
 
   void _updateZoom(Vector2 screenSize) {
     final state = canvasBloc.state;
-    if (state is! CanvasReady) return;
+    if (state.status != CanvasStatus.ready) return;
 
-    final canvasHeightInPixels = state.canvasData.height;
+    final canvasHeightInPixels = state.canvasData!.height;
     final targetPixelsToShow = canvasHeightInPixels < 50
         ? canvasHeightInPixels
         : 50;

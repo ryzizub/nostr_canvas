@@ -28,17 +28,17 @@ class PixelGridComponent extends PositionComponent
   @override
   void onInitialState(CanvasState state) {
     // Handle initial state when component mounts
-    if (state is CanvasReady) {
-      _updateCanvasSize(state.canvasData);
-      _updatePixels(state.canvasData);
+    if (state.status == CanvasStatus.ready) {
+      _updateCanvasSize(state.canvasData!);
+      _updatePixels(state.canvasData!);
     }
   }
 
   @override
   void onNewState(CanvasState state) {
-    if (state is CanvasReady) {
-      _updateCanvasSize(state.canvasData);
-      _updatePixels(state.canvasData);
+    if (state.status == CanvasStatus.ready) {
+      _updateCanvasSize(state.canvasData!);
+      _updatePixels(state.canvasData!);
     }
   }
 

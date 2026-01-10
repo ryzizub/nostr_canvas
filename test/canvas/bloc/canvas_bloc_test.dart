@@ -21,10 +21,14 @@ void main() {
       pixelRepository = MockPixelRepository();
     });
 
-    test('initial state is CanvasInitial', () {
+    test('initial state has status initial', () {
       expect(
         CanvasBloc(pixelRepository: pixelRepository).state,
-        equals(const CanvasInitial()),
+        equals(const CanvasState()),
+      );
+      expect(
+        CanvasBloc(pixelRepository: pixelRepository).state.status,
+        equals(CanvasStatus.initial),
       );
     });
 
@@ -32,7 +36,7 @@ void main() {
       const canvasData = CanvasData(width: 1000, height: 1000);
 
       blocTest<CanvasBloc, CanvasState>(
-        'emits [CanvasLoading, CanvasReady] when load succeeds',
+        'emits loading then ready status when load succeeds',
         setUp: () {
           when(() => pixelRepository.loadCanvas()).thenAnswer(
             (_) async => canvasData,
@@ -41,13 +45,13 @@ void main() {
         build: () => CanvasBloc(pixelRepository: pixelRepository),
         act: (bloc) => bloc.add(const CanvasLoadRequested()),
         expect: () => [
-          const CanvasLoading(),
-          const CanvasReady(canvasData: canvasData),
+          const CanvasState(status: CanvasStatus.loading),
+          const CanvasState(status: CanvasStatus.ready, canvasData: canvasData),
         ],
       );
 
       blocTest<CanvasBloc, CanvasState>(
-        'emits [CanvasLoading, CanvasError] when load fails',
+        'emits loading then error status when load fails',
         setUp: () {
           when(() => pixelRepository.loadCanvas()).thenThrow(
             Exception('Failed to load canvas'),
@@ -56,11 +60,12 @@ void main() {
         build: () => CanvasBloc(pixelRepository: pixelRepository),
         act: (bloc) => bloc.add(const CanvasLoadRequested()),
         expect: () => [
-          const CanvasLoading(),
-          isA<CanvasError>()
+          const CanvasState(status: CanvasStatus.loading),
+          isA<CanvasState>()
+              .having((s) => s.status, 'status', CanvasStatus.error)
               .having(
-                (e) => e.message,
-                'message',
+                (s) => s.errorMessage,
+                'errorMessage',
                 contains('Failed to load canvas'),
               ),
         ],
@@ -73,7 +78,7 @@ void main() {
       const color = Colors.orange;
 
       blocTest<CanvasBloc, CanvasState>(
-        'does nothing when state is not CanvasReady',
+        'does nothing when status is not ready',
         setUp: () {
           when(() => pixelRepository.placePixel(any()))
               .thenAnswer((_) async {});
@@ -89,25 +94,29 @@ void main() {
       );
 
       blocTest<CanvasBloc, CanvasState>(
-        'emits updated CanvasReady with new pixel',
+        'emits updated state with new pixel',
         setUp: () {
           when(() => pixelRepository.placePixel(any()))
               .thenAnswer((_) async {});
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasReady(canvasData: canvasData),
+        seed: () => const CanvasState(
+          status: CanvasStatus.ready,
+          canvasData: canvasData,
+        ),
         act: (bloc) => bloc.add(
           const PixelPlaced(position: position, color: color),
         ),
         expect: () => [
-          isA<CanvasReady>()
+          isA<CanvasState>()
+              .having((s) => s.status, 'status', CanvasStatus.ready)
               .having(
-                (s) => s.canvasData.pixels.length,
+                (s) => s.canvasData!.pixels.length,
                 'has one pixel',
                 equals(1),
               )
               .having(
-                (s) => s.canvasData.getPixel(position)?.color,
+                (s) => s.canvasData!.getPixel(position)?.color,
                 'pixel color',
                 equals(color),
               ),
@@ -124,7 +133,8 @@ void main() {
               .thenAnswer((_) async {});
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasReady(
+        seed: () => const CanvasState(
+          status: CanvasStatus.ready,
           canvasData: canvasData,
           zoomLevel: 2,
           cameraOffset: Offset(10, 20),
@@ -133,7 +143,7 @@ void main() {
           const PixelPlaced(position: position, color: color),
         ),
         expect: () => [
-          isA<CanvasReady>()
+          isA<CanvasState>()
               .having((s) => s.zoomLevel, 'zoom level', equals(2))
               .having(
                 (s) => s.cameraOffset,
@@ -144,14 +154,17 @@ void main() {
       );
 
       blocTest<CanvasBloc, CanvasState>(
-        'does not emit error state when repository throws',
+        'does not emit when repository throws',
         setUp: () {
           when(() => pixelRepository.placePixel(any())).thenThrow(
             Exception('Out of bounds'),
           );
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasReady(canvasData: canvasData),
+        seed: () => const CanvasState(
+          status: CanvasStatus.ready,
+          canvasData: canvasData,
+        ),
         act: (bloc) => bloc.add(
           const PixelPlaced(position: position, color: color),
         ),
@@ -163,19 +176,22 @@ void main() {
       const canvasData = CanvasData(width: 1000, height: 1000);
 
       blocTest<CanvasBloc, CanvasState>(
-        'does nothing when state is not CanvasReady',
+        'does nothing when status is not ready',
         build: () => CanvasBloc(pixelRepository: pixelRepository),
         act: (bloc) => bloc.add(const ZoomChanged(2)),
         expect: () => <CanvasState>[],
       );
 
       blocTest<CanvasBloc, CanvasState>(
-        'emits CanvasReady with updated zoom level',
+        'emits state with updated zoom level',
         build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasReady(canvasData: canvasData),
+        seed: () => const CanvasState(
+          status: CanvasStatus.ready,
+          canvasData: canvasData,
+        ),
         act: (bloc) => bloc.add(const ZoomChanged(2.5)),
         expect: () => [
-          isA<CanvasReady>().having(
+          isA<CanvasState>().having(
             (s) => s.zoomLevel,
             'zoom level',
             equals(2.5),
@@ -186,13 +202,14 @@ void main() {
       blocTest<CanvasBloc, CanvasState>(
         'preserves canvas data and camera offset',
         build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasReady(
+        seed: () => const CanvasState(
+          status: CanvasStatus.ready,
           canvasData: canvasData,
           cameraOffset: Offset(50, 100),
         ),
         act: (bloc) => bloc.add(const ZoomChanged(3)),
         expect: () => [
-          isA<CanvasReady>()
+          isA<CanvasState>()
               .having((s) => s.canvasData, 'canvas data', equals(canvasData))
               .having(
                 (s) => s.cameraOffset,
@@ -207,19 +224,22 @@ void main() {
       const canvasData = CanvasData(width: 1000, height: 1000);
 
       blocTest<CanvasBloc, CanvasState>(
-        'does nothing when state is not CanvasReady',
+        'does nothing when status is not ready',
         build: () => CanvasBloc(pixelRepository: pixelRepository),
         act: (bloc) => bloc.add(const CanvasPanned(Offset(10, 20))),
         expect: () => <CanvasState>[],
       );
 
       blocTest<CanvasBloc, CanvasState>(
-        'emits CanvasReady with updated camera offset',
+        'emits state with updated camera offset',
         build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasReady(canvasData: canvasData),
+        seed: () => const CanvasState(
+          status: CanvasStatus.ready,
+          canvasData: canvasData,
+        ),
         act: (bloc) => bloc.add(const CanvasPanned(Offset(30, 40))),
         expect: () => [
-          isA<CanvasReady>().having(
+          isA<CanvasState>().having(
             (s) => s.cameraOffset,
             'camera offset',
             equals(const Offset(30, 40)),
@@ -230,13 +250,14 @@ void main() {
       blocTest<CanvasBloc, CanvasState>(
         'preserves canvas data and zoom level',
         build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasReady(
+        seed: () => const CanvasState(
+          status: CanvasStatus.ready,
           canvasData: canvasData,
           zoomLevel: 4,
         ),
         act: (bloc) => bloc.add(const CanvasPanned(Offset(100, 200))),
         expect: () => [
-          isA<CanvasReady>()
+          isA<CanvasState>()
               .having((s) => s.canvasData, 'canvas data', equals(canvasData))
               .having((s) => s.zoomLevel, 'zoom level', equals(4)),
         ],

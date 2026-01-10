@@ -25,37 +25,37 @@ class _CanvasViewState extends State<CanvasView> {
       ),
       body: BlocBuilder<CanvasBloc, CanvasState>(
         builder: (context, state) {
-          if (state is CanvasLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is CanvasError) {
-            return Center(child: Text('Error: ${state.message}'));
-          }
-
-          if (state is CanvasReady) {
-            // Create game only once when canvas is ready
-            _game ??= CanvasGame(canvasBloc: context.read<CanvasBloc>());
-            _bridge ??= CanvasGameBridge(
-              game: _game!,
-              bloc: context.read<CanvasBloc>(),
-            );
-
-            return Stack(
-              children: [
-                GameWidget(game: _game!),
-                Positioned(
-                  right: 16,
-                  bottom: 16,
-                  child: ZoomControls(bridge: _bridge!),
-                ),
-              ],
-            );
-          }
-
-          return const SizedBox.shrink();
+          return switch (state.status) {
+            CanvasStatus.initial => const SizedBox.shrink(),
+            CanvasStatus.loading => const Center(
+                child: CircularProgressIndicator(),
+              ),
+            CanvasStatus.error => Center(
+                child: Text('Error: ${state.errorMessage}'),
+              ),
+            CanvasStatus.ready => _buildCanvas(context),
+          };
         },
       ),
+    );
+  }
+
+  Widget _buildCanvas(BuildContext context) {
+    _game ??= CanvasGame(canvasBloc: context.read<CanvasBloc>());
+    _bridge ??= CanvasGameBridge(
+      game: _game!,
+      bloc: context.read<CanvasBloc>(),
+    );
+
+    return Stack(
+      children: [
+        GameWidget(game: _game!),
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: ZoomControls(bridge: _bridge!),
+        ),
+      ],
     );
   }
 }
