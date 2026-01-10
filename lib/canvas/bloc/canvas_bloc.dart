@@ -28,13 +28,17 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     try {
       final canvasData = await _pixelRepository.loadCanvas();
       emit(
-        state.copyWith(status: CanvasStatus.ready, canvasData: canvasData),
+        state.copyWith(
+          status: CanvasStatus.ready,
+          canvasData: canvasData,
+          errorMessage: () => null,
+        ),
       );
     } on Exception catch (error) {
       emit(
         state.copyWith(
           status: CanvasStatus.error,
-          errorMessage: error.toString(),
+          errorMessage: error.toString,
         ),
       );
     }
@@ -57,10 +61,14 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
 
       final updatedCanvas = state.canvasData!.placePixel(pixel);
 
-      emit(state.copyWith(canvasData: updatedCanvas));
-    } on Exception {
-      // Silently ignore pixel placement errors to keep the canvas functional.
-      // Individual pixel failures shouldn't break the entire canvas state.
+      emit(state.copyWith(canvasData: updatedCanvas, errorMessage: () => null));
+    } on Exception catch (error) {
+      emit(
+        state.copyWith(
+          errorMessage: error.toString,
+          status: CanvasStatus.error,
+        ),
+      );
     }
   }
 

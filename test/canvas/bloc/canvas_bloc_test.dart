@@ -154,7 +154,7 @@ void main() {
       );
 
       blocTest<CanvasBloc, CanvasState>(
-        'does not emit when repository throws',
+        'emits errorMessage when repository throws',
         setUp: () {
           when(() => pixelRepository.placePixel(any())).thenThrow(
             Exception('Out of bounds'),
@@ -168,7 +168,15 @@ void main() {
         act: (bloc) => bloc.add(
           const PixelPlaced(position: position, color: color),
         ),
-        expect: () => <CanvasState>[],
+        expect: () => [
+          isA<CanvasState>()
+              .having((s) => s.status, 'status', CanvasStatus.error)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Exception: Out of bounds',
+              ),
+        ],
       );
     });
 

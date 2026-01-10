@@ -19,26 +19,26 @@ class CanvasState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        canvasData,
-        zoomLevel,
-        cameraPosition,
-        errorMessage,
-      ];
+    status,
+    canvasData,
+    zoomLevel,
+    cameraPosition,
+    errorMessage,
+  ];
 
   CanvasState copyWith({
     CanvasStatus? status,
     CanvasData? canvasData,
     double? zoomLevel,
     Offset? cameraPosition,
-    String? errorMessage,
+    String? Function()? errorMessage,
   }) {
     return CanvasState(
       status: status ?? this.status,
       canvasData: canvasData ?? this.canvasData,
       zoomLevel: zoomLevel ?? this.zoomLevel,
       cameraPosition: cameraPosition ?? this.cameraPosition,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
   }
 }
