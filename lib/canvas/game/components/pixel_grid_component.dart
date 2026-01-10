@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_bloc/flame_bloc.dart';
@@ -30,20 +32,20 @@ class PixelGridComponent extends PositionComponent
   void onInitialState(CanvasState state) {
     // Handle initial state when component mounts
     if (state.status == CanvasStatus.ready) {
-      _updateCanvasSize(state.canvasData!);
-      _updatePixels(state.canvasData!);
+      unawaited(_updateCanvasSize(state.canvasData!));
+      unawaited(_updatePixels(state.canvasData!));
     }
   }
 
   @override
   void onNewState(CanvasState state) {
     if (state.status == CanvasStatus.ready) {
-      _updateCanvasSize(state.canvasData!);
-      _updatePixels(state.canvasData!);
+      unawaited(_updateCanvasSize(state.canvasData!));
+      unawaited(_updatePixels(state.canvasData!));
     }
   }
 
-  void _updateCanvasSize(CanvasData canvasData) {
+  Future<void> _updateCanvasSize(CanvasData canvasData) async {
     // Update component size to match canvas dimensions
     size = Vector2(
       canvasData.width * CanvasConstants.tileSize,
@@ -56,12 +58,11 @@ class PixelGridComponent extends PositionComponent
       gridWidth: canvasData.width,
       gridHeight: canvasData.height,
     );
-    // Intentionally not awaited - component loads asynchronously
-    // ignore: discarded_futures
-    add(_gridLines!);
+
+    await add(_gridLines!);
   }
 
-  void _updatePixels(CanvasData canvasData) {
+  Future<void> _updatePixels(CanvasData canvasData) async {
     // Remove old pixels not in new data
     _pixelComponents.removeWhere((key, component) {
       if (!canvasData.pixels.containsKey(key)) {
@@ -85,16 +86,15 @@ class PixelGridComponent extends PositionComponent
           position: pixel.position,
           color: pixel.color,
         );
-        // Intentionally not awaited - components load asynchronously
-        // ignore: discarded_futures
-        add(pixelComponent);
+
+        await add(pixelComponent);
         _pixelComponents[key] = pixelComponent;
       }
     }
   }
 
   @override
-  void onTapDown(TapDownEvent event) {
+  Future<void> onTapDown(TapDownEvent event) async {
     // event.localPosition is already in component's local coordinates
     final gridX = (event.localPosition.x / CanvasConstants.tileSize).floor();
     final gridY = (event.localPosition.y / CanvasConstants.tileSize).floor();
@@ -102,9 +102,8 @@ class PixelGridComponent extends PositionComponent
 
     // Add visual feedback for the click
     final highlight = ClickHighlightComponent(gridPosition: gridPosition);
-    // Intentionally not awaited - component loads asynchronously
-    // ignore: discarded_futures
-    add(highlight);
+
+    await add(highlight);
 
     // Place orange pixel
     bloc.add(

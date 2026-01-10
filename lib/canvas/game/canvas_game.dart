@@ -42,8 +42,8 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
 
     // Add components to the world (not game) so camera affects them
     await world.add(
-      FlameBlocProvider<CanvasBloc, CanvasState>(
-        create: () => canvasBloc,
+      FlameBlocProvider<CanvasBloc, CanvasState>.value(
+        value: canvasBloc,
         children: [
           PixelGridComponent(),
           CameraControllerComponent(),
@@ -61,8 +61,8 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
         canvasBloc.stream
             .firstWhere((s) => s.status == CanvasStatus.ready)
             .then((state) {
-          _updateCameraForCanvas(state.canvasData!);
-        }),
+              _updateCameraForCanvas(state.canvasData!);
+            }),
       );
     }
   }
@@ -160,8 +160,8 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     final canvasHeightInPixels = canvasData.height;
     final targetPixels =
         canvasHeightInPixels < CanvasConstants.targetPixelsToShow
-            ? canvasHeightInPixels
-            : CanvasConstants.targetPixelsToShow;
+        ? canvasHeightInPixels
+        : CanvasConstants.targetPixelsToShow;
 
     final worldHeight = targetPixels * CanvasConstants.tileSize;
 
@@ -177,5 +177,4 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
 
     return Position(gridX, gridY);
   }
-
 }
