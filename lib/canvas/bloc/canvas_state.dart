@@ -7,14 +7,14 @@ class CanvasState extends Equatable {
     this.status = CanvasStatus.initial,
     this.canvasData,
     this.zoomLevel = 1.0,
-    this.cameraOffset = Offset.zero,
+    this.cameraPosition = Offset.zero,
     this.errorMessage,
   });
 
   final CanvasStatus status;
   final CanvasData? canvasData;
   final double zoomLevel;
-  final Offset cameraOffset;
+  final Offset cameraPosition;
   final String? errorMessage;
 
   @override
@@ -22,7 +22,7 @@ class CanvasState extends Equatable {
         status,
         canvasData,
         zoomLevel,
-        cameraOffset,
+        cameraPosition,
         errorMessage,
       ];
 
@@ -30,14 +30,14 @@ class CanvasState extends Equatable {
     CanvasStatus? status,
     CanvasData? canvasData,
     double? zoomLevel,
-    Offset? cameraOffset,
+    Offset? cameraPosition,
     String? errorMessage,
   }) {
     return CanvasState(
       status: status ?? this.status,
       canvasData: canvasData ?? this.canvasData,
       zoomLevel: zoomLevel ?? this.zoomLevel,
-      cameraOffset: cameraOffset ?? this.cameraOffset,
+      cameraPosition: cameraPosition ?? this.cameraPosition,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

@@ -31,14 +31,14 @@ class ZoomChanged extends CanvasEvent {
   List<Object?> get props => [zoomLevel];
 }
 
-/// Canvas panned
-class CanvasPanned extends CanvasEvent {
-  const CanvasPanned(this.offset);
+/// Camera position changed (absolute position)
+class CameraPositionChanged extends CanvasEvent {
+  const CameraPositionChanged(this.position);
 
-  final Offset offset;
+  final Offset position;
 
   @override
-  List<Object?> get props => [offset];
+  List<Object?> get props => [position];
 }
 
 /// Request to load canvas data

@@ -137,7 +137,7 @@ void main() {
           status: CanvasStatus.ready,
           canvasData: canvasData,
           zoomLevel: 2,
-          cameraOffset: Offset(10, 20),
+          cameraPosition: Offset(10, 20),
         ),
         act: (bloc) => bloc.add(
           const PixelPlaced(position: position, color: color),
@@ -146,7 +146,7 @@ void main() {
           isA<CanvasState>()
               .having((s) => s.zoomLevel, 'zoom level', equals(2))
               .having(
-                (s) => s.cameraOffset,
+                (s) => s.cameraPosition,
                 'camera offset',
                 equals(const Offset(10, 20)),
               ),
@@ -205,14 +205,14 @@ void main() {
         seed: () => const CanvasState(
           status: CanvasStatus.ready,
           canvasData: canvasData,
-          cameraOffset: Offset(50, 100),
+          cameraPosition: Offset(50, 100),
         ),
         act: (bloc) => bloc.add(const ZoomChanged(3)),
         expect: () => [
           isA<CanvasState>()
               .having((s) => s.canvasData, 'canvas data', equals(canvasData))
               .having(
-                (s) => s.cameraOffset,
+                (s) => s.cameraPosition,
                 'camera offset',
                 equals(const Offset(50, 100)),
               ),
@@ -220,13 +220,13 @@ void main() {
       );
     });
 
-    group('CanvasPanned', () {
+    group('CameraPositionChanged', () {
       const canvasData = CanvasData(width: 1000, height: 1000);
 
       blocTest<CanvasBloc, CanvasState>(
         'does nothing when status is not ready',
         build: () => CanvasBloc(pixelRepository: pixelRepository),
-        act: (bloc) => bloc.add(const CanvasPanned(Offset(10, 20))),
+        act: (bloc) => bloc.add(const CameraPositionChanged(Offset(10, 20))),
         expect: () => <CanvasState>[],
       );
 
@@ -237,10 +237,10 @@ void main() {
           status: CanvasStatus.ready,
           canvasData: canvasData,
         ),
-        act: (bloc) => bloc.add(const CanvasPanned(Offset(30, 40))),
+        act: (bloc) => bloc.add(const CameraPositionChanged(Offset(30, 40))),
         expect: () => [
           isA<CanvasState>().having(
-            (s) => s.cameraOffset,
+            (s) => s.cameraPosition,
             'camera offset',
             equals(const Offset(30, 40)),
           ),
@@ -255,7 +255,7 @@ void main() {
           canvasData: canvasData,
           zoomLevel: 4,
         ),
-        act: (bloc) => bloc.add(const CanvasPanned(Offset(100, 200))),
+        act: (bloc) => bloc.add(const CameraPositionChanged(Offset(100, 200))),
         expect: () => [
           isA<CanvasState>()
               .having((s) => s.canvasData, 'canvas data', equals(canvasData))

@@ -7,6 +7,7 @@ import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/canvas_constants.dart';
+import 'package:nostr_place/canvas/game/components/camera_controller_component.dart';
 import 'package:nostr_place/canvas/game/components/pixel_grid_component.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
@@ -39,12 +40,13 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
   Future<void> onLoad() async {
     // Camera anchors are set via getter override, no need to set here
 
-    // Add the pixel grid component to the world (not game) so camera affects it
+    // Add components to the world (not game) so camera affects them
     await world.add(
       FlameBlocProvider<CanvasBloc, CanvasState>(
         create: () => canvasBloc,
         children: [
           PixelGridComponent(),
+          CameraControllerComponent(),
         ],
       ),
     );
@@ -91,7 +93,12 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
       // Move camera opposite to drag direction, scaled by zoom
       final delta = info.delta.global;
       final scaledDelta = Vector2(delta.x, delta.y) / camera.viewfinder.zoom;
-      camera.viewfinder.position -= scaledDelta;
+      final newPosition = camera.viewfinder.position - scaledDelta;
+
+      // Dispatch event - CameraControllerComponent will apply
+      canvasBloc.add(
+        CameraPositionChanged(Offset(newPosition.x, newPosition.y)),
+      );
     }
   }
 
@@ -112,7 +119,9 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
       CanvasConstants.minZoom,
       CanvasConstants.maxZoom,
     );
-    camera.viewfinder.zoom = newZoom;
+
+    // Dispatch event - CameraControllerComponent will apply
+    canvasBloc.add(ZoomChanged(newZoom));
   }
 
   /// Sets up initial camera position and zoom. Only runs once.
@@ -120,13 +129,18 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     if (_initialCameraSet) return;
 
     if (hasLayout) {
-      // Set initial position to center of canvas
+      // Calculate center of canvas
       final centerX = canvasData.width * CanvasConstants.tileSize / 2;
       final centerY = canvasData.height * CanvasConstants.tileSize / 2;
-      camera.viewfinder.position = Vector2(centerX, centerY);
 
-      // Set initial zoom
-      _updateZoom(size);
+      // Calculate initial zoom
+      final initialZoom = _calculateInitialZoom(size, canvasData);
+
+      // Dispatch events - CameraControllerComponent will apply
+      canvasBloc
+        ..add(CameraPositionChanged(Offset(centerX, centerY)))
+        ..add(ZoomChanged(initialZoom));
+
       _initialCameraSet = true;
     }
   }
@@ -142,11 +156,8 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     }
   }
 
-  void _updateZoom(Vector2 screenSize) {
-    final state = canvasBloc.state;
-    if (state.status != CanvasStatus.ready) return;
-
-    final canvasHeightInPixels = state.canvasData!.height;
+  double _calculateInitialZoom(Vector2 screenSize, CanvasData canvasData) {
+    final canvasHeightInPixels = canvasData.height;
     final targetPixels =
         canvasHeightInPixels < CanvasConstants.targetPixelsToShow
             ? canvasHeightInPixels
@@ -155,8 +166,7 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     final worldHeight = targetPixels * CanvasConstants.tileSize;
 
     // Calculate zoom to show target pixels vertically (with padding)
-    camera.viewfinder.zoom =
-        (screenSize.y * CanvasConstants.zoomPaddingFactor) / worldHeight;
+    return (screenSize.y * CanvasConstants.zoomPaddingFactor) / worldHeight;
   }
 
   /// Convert screen tap to grid position.
@@ -168,13 +178,4 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     return Position(gridX, gridY);
   }
 
-  double get zoom => camera.viewfinder.zoom;
-
-  set zoom(double value) {
-    camera.viewfinder.zoom = value;
-  }
-
-  void panCamera(Offset offset) {
-    camera.viewfinder.position += Vector2(offset.dx, offset.dy);
-  }
 }

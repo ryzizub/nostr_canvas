@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
-import 'package:nostr_place/canvas/game/canvas_game_bridge.dart';
 import 'package:nostr_place/canvas/view/widgets/zoom_controls.dart';
 
 class CanvasView extends StatefulWidget {
@@ -15,7 +14,6 @@ class CanvasView extends StatefulWidget {
 
 class _CanvasViewState extends State<CanvasView> {
   CanvasGame? _game;
-  CanvasGameBridge? _bridge;
 
   @override
   Widget build(BuildContext context) {
@@ -42,18 +40,14 @@ class _CanvasViewState extends State<CanvasView> {
 
   Widget _buildCanvas(BuildContext context) {
     _game ??= CanvasGame(canvasBloc: context.read<CanvasBloc>());
-    _bridge ??= CanvasGameBridge(
-      game: _game!,
-      bloc: context.read<CanvasBloc>(),
-    );
 
     return Stack(
       children: [
         GameWidget(game: _game!),
-        Positioned(
+        const Positioned(
           right: 16,
           bottom: 16,
-          child: ZoomControls(bridge: _bridge!),
+          child: ZoomControls(),
         ),
       ],
     );

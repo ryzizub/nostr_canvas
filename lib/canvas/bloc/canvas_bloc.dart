@@ -14,7 +14,7 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     on<CanvasLoadRequested>(_onLoadRequested);
     on<PixelPlaced>(_onPixelPlaced);
     on<ZoomChanged>(_onZoomChanged);
-    on<CanvasPanned>(_onCanvasPanned);
+    on<CameraPositionChanged>(_onCameraPositionChanged);
   }
 
   final PixelRepository _pixelRepository;
@@ -77,12 +77,12 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     emit(state.copyWith(zoomLevel: event.zoomLevel));
   }
 
-  void _onCanvasPanned(
-    CanvasPanned event,
+  void _onCameraPositionChanged(
+    CameraPositionChanged event,
     Emitter<CanvasState> emit,
   ) {
     if (state.status != CanvasStatus.ready) return;
 
-    emit(state.copyWith(cameraOffset: event.offset));
+    emit(state.copyWith(cameraPosition: event.position));
   }
 }
