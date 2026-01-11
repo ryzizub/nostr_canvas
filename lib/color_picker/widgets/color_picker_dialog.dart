@@ -142,7 +142,7 @@ class _HexInput extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         SizedBox(
-          width: 120,
+          width: 140,
           child: TextField(
             controller: controller,
             onChanged: onChanged,
