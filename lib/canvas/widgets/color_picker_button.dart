@@ -4,10 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nes_ui/nes_ui.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
-import 'package:nostr_place/canvas/view/widgets/color_picker_dialog.dart';
+import 'package:nostr_place/color_picker/color_picker.dart';
 
 class ColorPickerButton extends StatelessWidget {
   const ColorPickerButton({super.key});
+
+  Color _getContrastColor(Color color) {
+    final luminance = color.computeLuminance();
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  void _showColorPicker(BuildContext context, Color currentColor) {
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (_) => ColorPickerDialog(
+          initialColor: currentColor,
+          onColorSelected: (color) {
+            context.read<CanvasBloc>().add(ColorChanged(color));
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,25 +50,6 @@ class ColorPickerButton extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Color _getContrastColor(Color color) {
-    final luminance = color.computeLuminance();
-    return luminance > 0.5 ? Colors.black : Colors.white;
-  }
-
-  void _showColorPicker(BuildContext context, Color currentColor) {
-    unawaited(
-      showDialog<void>(
-        context: context,
-        builder: (_) => ColorPickerDialog(
-          initialColor: currentColor,
-          onColorSelected: (color) {
-            context.read<CanvasBloc>().add(ColorChanged(color));
-          },
-        ),
-      ),
     );
   }
 }

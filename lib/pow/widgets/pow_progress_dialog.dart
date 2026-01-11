@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
+import 'package:nostr_place/pow/bloc/pow_bloc.dart';
 
 /// Dialog showing PoW mining and sending progress with NES styling.
 class PowProgressDialog extends StatelessWidget {
@@ -24,18 +24,18 @@ class PowProgressDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildIcon(),
+              _PhaseIcon(phase: progress.phase),
               const SizedBox(height: 16),
-              _buildTitle(),
+              _PhaseTitle(phase: progress.phase),
               const SizedBox(height: 8),
-              _buildSubtitle(),
+              _PhaseSubtitle(phase: progress.phase),
               if (progress.phase == PlacementPhase.mining) ...[
                 const SizedBox(height: 16),
-                _buildStats(),
+                _MiningStats(progress: progress),
               ],
               if (progress.phase == PlacementPhase.error) ...[
                 const SizedBox(height: 16),
-                _buildErrorMessage(),
+                _ErrorMessage(message: progress.errorMessage),
                 const SizedBox(height: 16),
                 NesButton(
                   type: NesButtonType.error,
@@ -49,26 +49,40 @@ class PowProgressDialog extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildIcon() {
-    return switch (progress.phase) {
+class _PhaseIcon extends StatelessWidget {
+  const _PhaseIcon({required this.phase});
+
+  final PlacementPhase phase;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (phase) {
       PlacementPhase.mining => const NesHourglassLoadingIndicator(),
       PlacementPhase.sending => const NesHourglassLoadingIndicator(),
       PlacementPhase.success => NesIcon(
-          iconData: NesIcons.check,
-          size: const Size.square(48),
-          primaryColor: Colors.green,
-        ),
+        iconData: NesIcons.check,
+        size: const Size.square(48),
+        primaryColor: Colors.green,
+      ),
       PlacementPhase.error => NesIcon(
-          iconData: NesIcons.close,
-          size: const Size.square(48),
-          primaryColor: Colors.red,
-        ),
+        iconData: NesIcons.close,
+        size: const Size.square(48),
+        primaryColor: Colors.red,
+      ),
     };
   }
+}
 
-  Widget _buildTitle() {
-    final text = switch (progress.phase) {
+class _PhaseTitle extends StatelessWidget {
+  const _PhaseTitle({required this.phase});
+
+  final PlacementPhase phase;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = switch (phase) {
       PlacementPhase.mining => 'Mining PoW',
       PlacementPhase.sending => 'Sending',
       PlacementPhase.success => 'Success!',
@@ -80,9 +94,16 @@ class PowProgressDialog extends StatelessWidget {
       style: const TextStyle(fontSize: 16),
     );
   }
+}
 
-  Widget _buildSubtitle() {
-    final text = switch (progress.phase) {
+class _PhaseSubtitle extends StatelessWidget {
+  const _PhaseSubtitle({required this.phase});
+
+  final PlacementPhase phase;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = switch (phase) {
       PlacementPhase.mining => 'Finding valid nonce...',
       PlacementPhase.sending => 'Publishing to relay...',
       PlacementPhase.success => 'Pixel placed!',
@@ -97,8 +118,15 @@ class PowProgressDialog extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildStats() {
+class _MiningStats extends StatelessWidget {
+  const _MiningStats({required this.progress});
+
+  final PlacementProgress progress;
+
+  @override
+  Widget build(BuildContext context) {
     final difficultyProgress =
         '${progress.currentDifficulty}/${progress.targetDifficulty} bits';
     final hashRate = _formatHashRate(progress.hashRate);
@@ -112,21 +140,6 @@ class PowProgressDialog extends StatelessWidget {
         const SizedBox(height: 4),
         _StatRow(label: 'Hash rate', value: hashRate),
       ],
-    );
-  }
-
-  Widget _buildErrorMessage() {
-    return NesContainer(
-      backgroundColor: Colors.red.withValues(alpha: 0.2),
-      padding: const EdgeInsets.all(8),
-      child: Text(
-        progress.errorMessage ?? 'Unknown error',
-        style: TextStyle(
-          fontSize: 10,
-          color: Colors.red[300],
-        ),
-        textAlign: TextAlign.center,
-      ),
     );
   }
 
@@ -148,6 +161,28 @@ class PowProgressDialog extends StatelessWidget {
     } else {
       return number.toString();
     }
+  }
+}
+
+class _ErrorMessage extends StatelessWidget {
+  const _ErrorMessage({required this.message});
+
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    return NesContainer(
+      backgroundColor: Colors.red.withValues(alpha: 0.2),
+      padding: const EdgeInsets.all(8),
+      child: Text(
+        message ?? 'Unknown error',
+        style: TextStyle(
+          fontSize: 10,
+          color: Colors.red[300],
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 }
 

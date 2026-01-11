@@ -9,8 +9,8 @@ part 'relay_state.dart';
 class RelayBloc extends Bloc<RelayEvent, RelayState> {
   RelayBloc({
     required PixelRepository pixelRepository,
-  })  : _pixelRepository = pixelRepository,
-        super(const RelayState()) {
+  }) : _pixelRepository = pixelRepository,
+       super(const RelayState()) {
     on<RelaySubscriptionRequested>(_onSubscriptionRequested);
   }
 

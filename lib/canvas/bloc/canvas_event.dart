@@ -7,20 +7,6 @@ abstract class CanvasEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// User tapped to place a pixel
-class PixelPlaced extends CanvasEvent {
-  const PixelPlaced({
-    required this.position,
-    required this.color,
-  });
-
-  final Position position;
-  final Color color;
-
-  @override
-  List<Object?> get props => [position, color];
-}
-
 /// Zoom level changed
 class ZoomChanged extends CanvasEvent {
   const ZoomChanged(this.zoomLevel);

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
+import 'package:nostr_place/canvas/bloc/relay_bloc.dart';
 import 'package:nostr_place/canvas/view/canvas_view.dart';
+import 'package:nostr_place/pow/pow.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 /// Entry point page for the canvas feature.
@@ -10,10 +12,24 @@ class CanvasPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CanvasBloc(
-        pixelRepository: context.read<PixelRepository>(),
-      )..add(const CanvasLoadRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => CanvasBloc(
+            pixelRepository: context.read<PixelRepository>(),
+          )..add(const CanvasLoadRequested()),
+        ),
+        BlocProvider(
+          create: (context) => PowBloc(
+            pixelRepository: context.read<PixelRepository>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => RelayBloc(
+            pixelRepository: context.read<PixelRepository>(),
+          )..add(const RelaySubscriptionRequested()),
+        ),
+      ],
       child: const CanvasView(),
     );
   }

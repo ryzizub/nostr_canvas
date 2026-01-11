@@ -4,7 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:nostr_client/nostr_client.dart';
-import 'package:nostr_place/relay/relay.dart';
+import 'package:nostr_place/canvas/bloc/relay_bloc.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 class MockPixelRepository extends Mock implements PixelRepository {}

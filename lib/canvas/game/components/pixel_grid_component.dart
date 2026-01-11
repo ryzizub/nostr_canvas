@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_bloc/flame_bloc.dart';
-import 'package:nostr_place/app/constants.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
 import 'package:nostr_place/canvas/game/components/click_highlight_component.dart';
 import 'package:nostr_place/canvas/game/components/grid_lines_component.dart';
 import 'package:nostr_place/canvas/game/components/pixel_component.dart';
+import 'package:nostr_place/core/constants.dart';
+import 'package:nostr_place/pow/pow.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 /// Renders the entire pixel grid and handles user interactions.
@@ -120,9 +121,9 @@ class PixelGridComponent extends PositionComponent
 
     await add(highlight);
 
-    // Place pixel with selected color
-    bloc.add(
-      PixelPlaced(
+    // Place pixel with selected color via PowBloc
+    game.powBloc.add(
+      PowPlacePixelRequested(
         position: Position(gridX, gridY),
         color: bloc.state.selectedColor,
       ),

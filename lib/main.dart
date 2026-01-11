@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nostr_client/nostr_client.dart';
 import 'package:nostr_place/app/app.dart';
 import 'package:nostr_place/app/app_bloc_observer.dart';
-import 'package:nostr_place/app/constants.dart';
-import 'package:nostr_place/relay/relay.dart';
+import 'package:nostr_place/core/constants.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 void main() async {
@@ -28,16 +27,9 @@ void main() async {
   );
 
   runApp(
-    MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<PixelRepository>.value(value: pixelRepository),
-      ],
-      child: BlocProvider(
-        create: (context) => RelayBloc(
-          pixelRepository: context.read<PixelRepository>(),
-        )..add(const RelaySubscriptionRequested()),
-        child: const App(),
-      ),
+    RepositoryProvider<PixelRepository>.value(
+      value: pixelRepository,
+      child: const App(),
     ),
   );
 }

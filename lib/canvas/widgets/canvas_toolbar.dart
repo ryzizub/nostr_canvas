@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/canvas/view/widgets/color_picker_button.dart';
-import 'package:nostr_place/canvas/view/widgets/relay_status_indicator.dart';
+import 'package:nostr_place/canvas/widgets/color_picker_button.dart';
+import 'package:nostr_place/canvas/widgets/relay_status_indicator.dart';
 
 class CanvasToolbar extends StatelessWidget {
   const CanvasToolbar({super.key});

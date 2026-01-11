@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:nostr_place/app/constants.dart';
+import 'package:nostr_place/core/constants.dart';
 
 /// Renders a single pixel on the canvas.
 class PixelComponent extends RectangleComponent {
