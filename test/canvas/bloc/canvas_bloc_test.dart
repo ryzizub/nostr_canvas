@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,18 +9,26 @@ import 'package:pixel_repository/pixel_repository.dart';
 
 class MockPixelRepository extends Mock implements PixelRepository {}
 
-class FakePixel extends Fake implements Pixel {}
-
 void main() {
   group('CanvasBloc', () {
     late PixelRepository pixelRepository;
+    late StreamController<CanvasData> canvasUpdatesController;
 
     setUpAll(() {
-      registerFallbackValue(FakePixel());
+      registerFallbackValue(const Position(0, 0));
+      registerFallbackValue(Colors.black);
     });
 
     setUp(() {
       pixelRepository = MockPixelRepository();
+      canvasUpdatesController = StreamController<CanvasData>.broadcast();
+      when(
+        () => pixelRepository.canvasUpdates,
+      ).thenAnswer((_) => canvasUpdatesController.stream);
+    });
+
+    tearDown(() async {
+      await canvasUpdatesController.close();
     });
 
     test('initial state has status initial', () {
@@ -81,7 +91,7 @@ void main() {
         'does nothing when status is not ready',
         setUp: () {
           when(
-            () => pixelRepository.placePixel(any()),
+            () => pixelRepository.placePixel(any(), any()),
           ).thenAnswer((_) async {});
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
@@ -90,15 +100,15 @@ void main() {
         ),
         expect: () => <CanvasState>[],
         verify: (_) {
-          verifyNever(() => pixelRepository.placePixel(any()));
+          verifyNever(() => pixelRepository.placePixel(any(), any()));
         },
       );
 
       blocTest<CanvasBloc, CanvasState>(
-        'emits updated state with new pixel',
+        'calls repository with position and color',
         setUp: () {
           when(
-            () => pixelRepository.placePixel(any()),
+            () => pixelRepository.placePixel(any(), any()),
           ).thenAnswer((_) async {});
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
@@ -109,57 +119,16 @@ void main() {
         act: (bloc) => bloc.add(
           const PixelPlaced(position: position, color: color),
         ),
-        expect: () => [
-          isA<CanvasState>()
-              .having((s) => s.status, 'status', CanvasStatus.ready)
-              .having(
-                (s) => s.canvasData!.pixels.length,
-                'has one pixel',
-                equals(1),
-              )
-              .having(
-                (s) => s.canvasData!.getPixel(position)?.color,
-                'pixel color',
-                equals(color),
-              ),
-        ],
+        expect: () => <CanvasState>[],
         verify: (_) {
-          verify(() => pixelRepository.placePixel(any())).called(1);
+          verify(() => pixelRepository.placePixel(position, color)).called(1);
         },
-      );
-
-      blocTest<CanvasBloc, CanvasState>(
-        'preserves zoom and camera offset when placing pixel',
-        setUp: () {
-          when(
-            () => pixelRepository.placePixel(any()),
-          ).thenAnswer((_) async {});
-        },
-        build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasState(
-          status: CanvasStatus.ready,
-          canvasData: canvasData,
-          zoomLevel: 2,
-          cameraPosition: Offset(10, 20),
-        ),
-        act: (bloc) => bloc.add(
-          const PixelPlaced(position: position, color: color),
-        ),
-        expect: () => [
-          isA<CanvasState>()
-              .having((s) => s.zoomLevel, 'zoom level', equals(2))
-              .having(
-                (s) => s.cameraPosition,
-                'camera offset',
-                equals(const Offset(10, 20)),
-              ),
-        ],
       );
 
       blocTest<CanvasBloc, CanvasState>(
         'emits errorMessage when repository throws',
         setUp: () {
-          when(() => pixelRepository.placePixel(any())).thenThrow(
+          when(() => pixelRepository.placePixel(any(), any())).thenThrow(
             Exception('Out of bounds'),
           );
         },

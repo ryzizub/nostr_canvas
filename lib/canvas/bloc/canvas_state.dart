@@ -8,6 +8,7 @@ class CanvasState extends Equatable {
     this.canvasData,
     this.zoomLevel = 1.0,
     this.cameraPosition = Offset.zero,
+    this.selectedColor = Colors.orange,
     this.errorMessage,
   });
 
@@ -15,6 +16,7 @@ class CanvasState extends Equatable {
   final CanvasData? canvasData;
   final double zoomLevel;
   final Offset cameraPosition;
+  final Color selectedColor;
   final String? errorMessage;
 
   @override
@@ -23,6 +25,7 @@ class CanvasState extends Equatable {
     canvasData,
     zoomLevel,
     cameraPosition,
+    selectedColor,
     errorMessage,
   ];
 
@@ -31,6 +34,7 @@ class CanvasState extends Equatable {
     CanvasData? canvasData,
     double? zoomLevel,
     Offset? cameraPosition,
+    Color? selectedColor,
     String? Function()? errorMessage,
   }) {
     return CanvasState(
@@ -38,6 +42,7 @@ class CanvasState extends Equatable {
       canvasData: canvasData ?? this.canvasData,
       zoomLevel: zoomLevel ?? this.zoomLevel,
       cameraPosition: cameraPosition ?? this.cameraPosition,
+      selectedColor: selectedColor ?? this.selectedColor,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
   }

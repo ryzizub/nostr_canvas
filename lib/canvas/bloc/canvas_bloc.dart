@@ -27,12 +27,18 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
 
     try {
       final canvasData = await _pixelRepository.loadCanvas();
+
       emit(
         state.copyWith(
           status: CanvasStatus.ready,
           canvasData: canvasData,
           errorMessage: () => null,
         ),
+      );
+
+      await emit.forEach<CanvasData>(
+        _pixelRepository.canvasUpdates,
+        onData: (canvasData) => state.copyWith(canvasData: canvasData),
       );
     } on Exception catch (error) {
       emit(
@@ -50,18 +56,9 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
   ) async {
     if (state.status != CanvasStatus.ready) return;
 
-    final pixel = Pixel(
-      position: event.position,
-      color: event.color,
-      timestamp: DateTime.now(),
-    );
-
     try {
-      await _pixelRepository.placePixel(pixel);
-
-      final updatedCanvas = state.canvasData!.placePixel(pixel);
-
-      emit(state.copyWith(canvasData: updatedCanvas, errorMessage: () => null));
+      await _pixelRepository.placePixel(event.position, event.color);
+      // State update comes through canvasUpdates stream
     } on Exception catch (error) {
       emit(
         state.copyWith(

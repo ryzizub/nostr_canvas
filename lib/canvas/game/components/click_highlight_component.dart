@@ -1,18 +1,18 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:nostr_place/canvas/canvas_constants.dart';
-import 'package:pixel_repository/pixel_repository.dart';
+import 'package:nostr_place/app/constants.dart';
 
 /// Displays a highlight border around a recently clicked pixel.
 class ClickHighlightComponent extends PositionComponent {
   ClickHighlightComponent({
-    required Position gridPosition,
+    required int x,
+    required int y,
   }) : super(
          position: Vector2(
-           gridPosition.x * CanvasConstants.tileSize,
-           gridPosition.y * CanvasConstants.tileSize,
+           x * Constants.tileSize,
+           y * Constants.tileSize,
          ),
-         size: Vector2.all(CanvasConstants.tileSize),
+         size: Vector2.all(Constants.tileSize),
        );
 
   static const _borderWidth = 1.0;

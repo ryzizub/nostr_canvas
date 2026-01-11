@@ -1,19 +1,19 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:nostr_place/canvas/canvas_constants.dart';
-import 'package:pixel_repository/pixel_repository.dart';
+import 'package:nostr_place/app/constants.dart';
 
 /// Renders a single pixel on the canvas.
 class PixelComponent extends RectangleComponent {
   PixelComponent({
-    required Position position,
+    required int x,
+    required int y,
     required Color color,
   }) : super(
          position: Vector2(
-           position.x.toDouble() * CanvasConstants.tileSize,
-           position.y.toDouble() * CanvasConstants.tileSize,
+           x.toDouble() * Constants.tileSize,
+           y.toDouble() * Constants.tileSize,
          ),
-         size: Vector2.all(CanvasConstants.tileSize),
+         size: Vector2.all(Constants.tileSize),
          paint: Paint()
            ..color = color
            ..isAntiAlias = false

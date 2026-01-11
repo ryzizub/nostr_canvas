@@ -1,0 +1,15 @@
+name: nostr_client
+description: Nostr protocol client abstraction for Nostr Place
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.9.0
+
+resolution: workspace
+
+dependencies:
+  equatable: ^2.0.7
+  meta: ^1.16.0
+  nostr: ^1.5.0
+  web_socket_channel: ^3.0.0

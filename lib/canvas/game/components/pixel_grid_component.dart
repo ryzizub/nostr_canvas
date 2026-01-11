@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_bloc/flame_bloc.dart';
-import 'package:flutter/material.dart';
+import 'package:nostr_place/app/constants.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
-import 'package:nostr_place/canvas/canvas_constants.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
 import 'package:nostr_place/canvas/game/components/click_highlight_component.dart';
 import 'package:nostr_place/canvas/game/components/grid_lines_component.dart';
@@ -64,8 +63,8 @@ class PixelGridComponent extends PositionComponent
 
     // Update component size to match canvas dimensions
     size = Vector2(
-      canvasData.width * CanvasConstants.tileSize,
-      canvasData.height * CanvasConstants.tileSize,
+      canvasData.width * Constants.tileSize,
+      canvasData.height * Constants.tileSize,
     );
 
     // Remove old grid lines and add new ones with correct dimensions
@@ -99,7 +98,8 @@ class PixelGridComponent extends PositionComponent
       } else {
         // Add new pixel
         final pixelComponent = PixelComponent(
-          position: pixel.position,
+          x: pixel.position.x,
+          y: pixel.position.y,
           color: pixel.color,
         );
 
@@ -112,20 +112,19 @@ class PixelGridComponent extends PositionComponent
   @override
   Future<void> onTapDown(TapDownEvent event) async {
     // event.localPosition is already in component's local coordinates
-    final gridX = (event.localPosition.x / CanvasConstants.tileSize).floor();
-    final gridY = (event.localPosition.y / CanvasConstants.tileSize).floor();
-    final gridPosition = Position(gridX, gridY);
+    final gridX = (event.localPosition.x / Constants.tileSize).floor();
+    final gridY = (event.localPosition.y / Constants.tileSize).floor();
 
     // Add visual feedback for the click
-    final highlight = ClickHighlightComponent(gridPosition: gridPosition);
+    final highlight = ClickHighlightComponent(x: gridX, y: gridY);
 
     await add(highlight);
 
-    // Place orange pixel
+    // Place pixel with selected color
     bloc.add(
       PixelPlaced(
-        position: gridPosition,
-        color: Colors.orange,
+        position: Position(gridX, gridY),
+        color: bloc.state.selectedColor,
       ),
     );
   }
