@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nes_ui/nes_ui.dart';
 import 'package:nostr_client/nostr_client.dart';
 import 'package:nostr_place/relay/relay.dart';
 
@@ -12,17 +13,12 @@ class RelayStatusIndicator extends StatelessWidget {
       builder: (context, state) {
         return Tooltip(
           message: _getTooltipMessage(state.connectionState),
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              _getIcon(state.connectionState),
-              color: _getColor(state.connectionState),
-              size: 24,
+          preferBelow: false,
+          child: NesContainer(
+            padding: const EdgeInsets.all(8),
+            child: NesIcon(
+              iconData: _getIconData(state.connectionState),
+              primaryColor: _getColor(state.connectionState),
             ),
           ),
         );
@@ -30,13 +26,13 @@ class RelayStatusIndicator extends StatelessWidget {
     );
   }
 
-  IconData _getIcon(ConnectionState state) {
+  NesIconData _getIconData(ConnectionState state) {
     return switch (state) {
-      ConnectionState.connected => Icons.cloud_done,
-      ConnectionState.connecting => Icons.cloud_sync,
-      ConnectionState.reconnecting => Icons.cloud_sync,
-      ConnectionState.disconnected => Icons.cloud_off,
-      ConnectionState.error => Icons.cloud_off,
+      ConnectionState.connected => NesIcons.check,
+      ConnectionState.connecting => NesIcons.radio,
+      ConnectionState.reconnecting => NesIcons.radio,
+      ConnectionState.disconnected => NesIcons.close,
+      ConnectionState.error => NesIcons.exclamationMarkBlock,
     };
   }
 

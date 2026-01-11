@@ -3,6 +3,7 @@ import 'dart:async' show unawaited;
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nes_ui/nes_ui.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
 import 'package:nostr_place/canvas/view/widgets/canvas_toolbar.dart';
@@ -32,11 +33,24 @@ class _CanvasViewState extends State<CanvasView> {
             return switch (state.status) {
               CanvasStatus.initial => const SizedBox.shrink(),
               CanvasStatus.loading => const Center(
-                child: CircularProgressIndicator(),
-              ),
+                  child: NesHourglassLoadingIndicator(),
+                ),
               CanvasStatus.error => Center(
-                child: Text('Error: ${state.errorMessage}'),
-              ),
+                  child: NesContainer(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        NesIcon(
+                          iconData: NesIcons.exclamationMarkBlock,
+                          primaryColor: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Error: ${state.errorMessage}'),
+                      ],
+                    ),
+                  ),
+                ),
               CanvasStatus.ready => _buildCanvas(context),
             };
           },

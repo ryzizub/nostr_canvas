@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nes_ui/nes_ui.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 
-/// Dialog showing PoW mining and sending progress.
+/// Dialog showing PoW mining and sending progress with NES styling.
 class PowProgressDialog extends StatelessWidget {
   const PowProgressDialog({
     required this.progress,
@@ -14,58 +15,55 @@ class PowProgressDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildIcon(),
-          const SizedBox(height: 16),
-          _buildTitle(),
-          const SizedBox(height: 8),
-          _buildSubtitle(),
-          if (progress.phase == PlacementPhase.mining) ...[
-            const SizedBox(height: 16),
-            _buildStats(),
-          ],
-          if (progress.phase == PlacementPhase.error) ...[
-            const SizedBox(height: 16),
-            _buildErrorMessage(),
-          ],
-        ],
+    return Center(
+      child: Material(
+        color: Colors.transparent,
+        child: NesContainer(
+          width: 300,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildIcon(),
+              const SizedBox(height: 16),
+              _buildTitle(),
+              const SizedBox(height: 8),
+              _buildSubtitle(),
+              if (progress.phase == PlacementPhase.mining) ...[
+                const SizedBox(height: 16),
+                _buildStats(),
+              ],
+              if (progress.phase == PlacementPhase.error) ...[
+                const SizedBox(height: 16),
+                _buildErrorMessage(),
+                const SizedBox(height: 16),
+                NesButton(
+                  type: NesButtonType.error,
+                  onPressed: onDismiss,
+                  child: const Text('Close'),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
-      actions: progress.phase == PlacementPhase.error
-          ? [
-              TextButton(
-                onPressed: onDismiss,
-                child: const Text('Close'),
-              ),
-            ]
-          : null,
     );
   }
 
   Widget _buildIcon() {
     return switch (progress.phase) {
-      PlacementPhase.mining => const SizedBox(
-        width: 48,
-        height: 48,
-        child: CircularProgressIndicator(strokeWidth: 3),
-      ),
-      PlacementPhase.sending => const SizedBox(
-        width: 48,
-        height: 48,
-        child: CircularProgressIndicator(strokeWidth: 3),
-      ),
-      PlacementPhase.success => const Icon(
-        Icons.check_circle,
-        size: 48,
-        color: Colors.green,
-      ),
-      PlacementPhase.error => const Icon(
-        Icons.error,
-        size: 48,
-        color: Colors.red,
-      ),
+      PlacementPhase.mining => const NesHourglassLoadingIndicator(),
+      PlacementPhase.sending => const NesHourglassLoadingIndicator(),
+      PlacementPhase.success => NesIcon(
+          iconData: NesIcons.check,
+          size: const Size.square(48),
+          primaryColor: Colors.green,
+        ),
+      PlacementPhase.error => NesIcon(
+          iconData: NesIcons.close,
+          size: const Size.square(48),
+          primaryColor: Colors.red,
+        ),
     };
   }
 
@@ -73,16 +71,13 @@ class PowProgressDialog extends StatelessWidget {
     final text = switch (progress.phase) {
       PlacementPhase.mining => 'Mining PoW',
       PlacementPhase.sending => 'Sending',
-      PlacementPhase.success => 'Success',
+      PlacementPhase.success => 'Success!',
       PlacementPhase.error => 'Error',
     };
 
     return Text(
       text,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
+      style: const TextStyle(fontSize: 16),
     );
   }
 
@@ -97,8 +92,8 @@ class PowProgressDialog extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        fontSize: 14,
-        color: Colors.grey[600],
+        fontSize: 12,
+        color: Colors.grey[400],
       ),
     );
   }
@@ -121,17 +116,14 @@ class PowProgressDialog extends StatelessWidget {
   }
 
   Widget _buildErrorMessage() {
-    return Container(
+    return NesContainer(
+      backgroundColor: Colors.red.withValues(alpha: 0.2),
       padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.red[50],
-        borderRadius: BorderRadius.circular(4),
-      ),
       child: Text(
         progress.errorMessage ?? 'Unknown error',
         style: TextStyle(
-          fontSize: 12,
-          color: Colors.red[700],
+          fontSize: 10,
+          color: Colors.red[300],
         ),
         textAlign: TextAlign.center,
       ),
@@ -176,16 +168,13 @@ class _StatRow extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey[600],
+            fontSize: 10,
+            color: Colors.grey[400],
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 10),
         ),
       ],
     );
