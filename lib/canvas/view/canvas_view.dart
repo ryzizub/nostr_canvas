@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
+import 'package:nostr_place/canvas/view/widgets/canvas_toolbar.dart';
 import 'package:nostr_place/canvas/view/widgets/pow_progress_dialog.dart';
 import 'package:nostr_place/canvas/view/widgets/zoom_controls.dart';
 
@@ -26,9 +27,6 @@ class _CanvasViewState extends State<CanvasView> {
           previous.placementProgress != current.placementProgress,
       listener: _handlePlacementProgressChange,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Nostr Place'),
-        ),
         body: BlocBuilder<CanvasBloc, CanvasState>(
           builder: (context, state) {
             return switch (state.status) {
@@ -95,6 +93,11 @@ class _CanvasViewState extends State<CanvasView> {
     return Stack(
       children: [
         GameWidget(game: _game!),
+        const Positioned(
+          left: 16,
+          bottom: 16,
+          child: CanvasToolbar(),
+        ),
         const Positioned(
           right: 16,
           bottom: 16,

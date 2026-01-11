@@ -39,6 +39,9 @@ class PixelRepository {
   /// Connection state stream from the underlying client.
   Stream<ConnectionState> get connectionState => _nostrClient.connectionState;
 
+  /// Current connection state.
+  ConnectionState get currentConnectionState => _nostrClient.currentState;
+
   Future<CanvasData> loadCanvas() async {
     _canvasData = CanvasData(width: canvasWidth, height: canvasHeight);
 

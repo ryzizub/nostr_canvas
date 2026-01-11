@@ -4,6 +4,7 @@ import 'package:nostr_client/nostr_client.dart';
 import 'package:nostr_place/app/app.dart';
 import 'package:nostr_place/app/app_bloc_observer.dart';
 import 'package:nostr_place/app/constants.dart';
+import 'package:nostr_place/relay/relay.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 void main() async {
@@ -31,7 +32,12 @@ void main() async {
       providers: [
         RepositoryProvider<PixelRepository>.value(value: pixelRepository),
       ],
-      child: const App(),
+      child: BlocProvider(
+        create: (context) => RelayBloc(
+          pixelRepository: context.read<PixelRepository>(),
+        )..add(const RelaySubscriptionRequested()),
+        child: const App(),
+      ),
     ),
   );
 }

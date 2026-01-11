@@ -181,8 +181,13 @@ class NostrClient {
   final _eventController = StreamController<Event>.broadcast();
 
   /// Stream of connection state changes.
-  Stream<ConnectionState> get connectionState =>
-      _connectionStateController.stream;
+  ///
+  /// Emits the current state immediately when subscribed, then continues
+  /// with subsequent state changes.
+  Stream<ConnectionState> get connectionState async* {
+    yield _currentState;
+    yield* _connectionStateController.stream;
+  }
 
   /// Current connection state.
   ConnectionState get currentState => _currentState;
