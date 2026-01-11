@@ -3,8 +3,8 @@ import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/color_picker/color_picker.dart';
+import 'package:nostr_place/color_selection/color_selection.dart';
 
 class ColorPickerButton extends StatelessWidget {
   const ColorPickerButton({super.key});
@@ -21,7 +21,7 @@ class ColorPickerButton extends StatelessWidget {
         builder: (_) => ColorPickerDialog(
           initialColor: currentColor,
           onColorSelected: (color) {
-            context.read<CanvasBloc>().add(ColorChanged(color));
+            context.read<ColorSelectionBloc>().add(ColorSelected(color));
           },
         ),
       ),
@@ -30,7 +30,7 @@ class ColorPickerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CanvasBloc, CanvasState>(
+    return BlocBuilder<ColorSelectionBloc, ColorSelectionState>(
       buildWhen: (previous, current) =>
           previous.selectedColor != current.selectedColor,
       builder: (context, state) {

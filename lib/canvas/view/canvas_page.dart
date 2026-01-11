@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/bloc/relay_bloc.dart';
 import 'package:nostr_place/canvas/view/canvas_view.dart';
+import 'package:nostr_place/color_selection/color_selection.dart';
 import 'package:nostr_place/pow/pow.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
@@ -29,6 +30,7 @@ class CanvasPage extends StatelessWidget {
             pixelRepository: context.read<PixelRepository>(),
           )..add(const RelaySubscriptionRequested()),
         ),
+        BlocProvider(create: (_) => ColorSelectionBloc()),
       ],
       child: const CanvasView(),
     );

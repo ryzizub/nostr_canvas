@@ -8,6 +8,7 @@ import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
 import 'package:nostr_place/canvas/widgets/canvas_toolbar.dart';
 import 'package:nostr_place/canvas/widgets/zoom_controls.dart';
+import 'package:nostr_place/color_selection/color_selection.dart';
 import 'package:nostr_place/pow/pow.dart';
 
 class CanvasView extends StatefulWidget {
@@ -65,6 +66,7 @@ class _CanvasViewState extends State<CanvasView> {
     _game ??= CanvasGame(
       canvasBloc: context.read<CanvasBloc>(),
       powBloc: context.read<PowBloc>(),
+      colorSelectionBloc: context.read<ColorSelectionBloc>(),
     );
 
     return Stack(

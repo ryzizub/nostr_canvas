@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/game/components/camera_controller_component.dart';
 import 'package:nostr_place/canvas/game/components/pixel_grid_component.dart';
+import 'package:nostr_place/color_selection/color_selection.dart';
 import 'package:nostr_place/core/constants.dart';
 import 'package:nostr_place/pow/pow.dart';
 import 'package:pixel_repository/pixel_repository.dart';
@@ -17,10 +18,12 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
   CanvasGame({
     required this.canvasBloc,
     required this.powBloc,
+    required this.colorSelectionBloc,
   });
 
   final CanvasBloc canvasBloc;
   final PowBloc powBloc;
+  final ColorSelectionBloc colorSelectionBloc;
   CameraComponent? _cameraComponent;
 
   Vector2? _panStartPosition;
@@ -51,6 +54,9 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
         providers: [
           FlameBlocProvider<CanvasBloc, CanvasState>.value(value: canvasBloc),
           FlameBlocProvider<PowBloc, PowState>.value(value: powBloc),
+          FlameBlocProvider<ColorSelectionBloc, ColorSelectionState>.value(
+            value: colorSelectionBloc,
+          ),
         ],
         children: [
           PixelGridComponent(),

@@ -125,7 +125,7 @@ class PixelGridComponent extends PositionComponent
     game.powBloc.add(
       PowPlacePixelRequested(
         position: Position(gridX, gridY),
-        color: bloc.state.selectedColor,
+        color: game.colorSelectionBloc.state.selectedColor,
       ),
     );
   }

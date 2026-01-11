@@ -31,13 +31,3 @@ class CameraPositionChanged extends CanvasEvent {
 class CanvasLoadRequested extends CanvasEvent {
   const CanvasLoadRequested();
 }
-
-/// User selected a new color
-class ColorChanged extends CanvasEvent {
-  const ColorChanged(this.color);
-
-  final Color color;
-
-  @override
-  List<Object?> get props => [color];
-}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:nostr_client/nostr_client.dart';
 import 'package:nostr_place/app/app.dart';
 import 'package:nostr_place/app/app_bloc_observer.dart';
@@ -8,6 +9,10 @@ import 'package:pixel_repository/pixel_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: HydratedStorageDirectory.web,
+  );
 
   Bloc.observer = const AppBlocObserver();
 
