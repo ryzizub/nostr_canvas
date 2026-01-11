@@ -4,6 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:nostr_client/nostr_client.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
@@ -91,8 +92,10 @@ void main() {
         'does nothing when status is not ready',
         setUp: () {
           when(
-            () => pixelRepository.placePixel(any(), any()),
-          ).thenAnswer((_) async {});
+            () => pixelRepository.placePixelWithProgress(any(), any()),
+          ).thenAnswer(
+            (_) => Stream.value(const PowSuccess(eventId: 'test-id')),
+          );
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
         act: (bloc) => bloc.add(
@@ -100,36 +103,35 @@ void main() {
         ),
         expect: () => <CanvasState>[],
         verify: (_) {
-          verifyNever(() => pixelRepository.placePixel(any(), any()));
+          verifyNever(
+            () => pixelRepository.placePixelWithProgress(any(), any()),
+          );
         },
       );
 
       blocTest<CanvasBloc, CanvasState>(
-        'calls repository with position and color',
+        'emits mining progress and clears on success',
         setUp: () {
           when(
-            () => pixelRepository.placePixel(any(), any()),
-          ).thenAnswer((_) async {});
-        },
-        build: () => CanvasBloc(pixelRepository: pixelRepository),
-        seed: () => const CanvasState(
-          status: CanvasStatus.ready,
-          canvasData: canvasData,
-        ),
-        act: (bloc) => bloc.add(
-          const PixelPlaced(position: position, color: color),
-        ),
-        expect: () => <CanvasState>[],
-        verify: (_) {
-          verify(() => pixelRepository.placePixel(position, color)).called(1);
-        },
-      );
-
-      blocTest<CanvasBloc, CanvasState>(
-        'emits errorMessage when repository throws',
-        setUp: () {
-          when(() => pixelRepository.placePixel(any(), any())).thenThrow(
-            Exception('Out of bounds'),
+            () => pixelRepository.placePixelWithProgress(any(), any()),
+          ).thenAnswer(
+            (_) => Stream.fromIterable([
+              const PowMining(
+                noncesAttempted: 1000,
+                currentDifficulty: 8,
+                targetDifficulty: 16,
+                elapsedMilliseconds: 100,
+              ),
+              const PowComplete(
+                nonce: '12345',
+                achievedDifficulty: 16,
+                targetDifficulty: 16,
+                elapsedMilliseconds: 500,
+                createdAt: 1234567890,
+              ),
+              const PowSending(),
+              const PowSuccess(eventId: 'test-event-id'),
+            ]),
           );
         },
         build: () => CanvasBloc(pixelRepository: pixelRepository),
@@ -141,12 +143,79 @@ void main() {
           const PixelPlaced(position: position, color: color),
         ),
         expect: () => [
+          // Initial mining state
+          isA<CanvasState>().having(
+            (s) => s.placementProgress?.phase,
+            'phase',
+            PlacementPhase.mining,
+          ),
+          // Mining progress update
           isA<CanvasState>()
-              .having((s) => s.status, 'status', CanvasStatus.error)
               .having(
-                (s) => s.errorMessage,
+                (s) => s.placementProgress?.phase,
+                'phase',
+                PlacementPhase.mining,
+              )
+              .having(
+                (s) => s.placementProgress?.noncesAttempted,
+                'noncesAttempted',
+                1000,
+              ),
+          // Sending phase (PowComplete and PowSending emit same state)
+          isA<CanvasState>().having(
+            (s) => s.placementProgress?.phase,
+            'phase',
+            PlacementPhase.sending,
+          ),
+          // Success - progress cleared
+          isA<CanvasState>().having(
+            (s) => s.placementProgress,
+            'placementProgress',
+            isNull,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => pixelRepository.placePixelWithProgress(position, color),
+          ).called(1);
+        },
+      );
+
+      blocTest<CanvasBloc, CanvasState>(
+        'emits error progress when PowError received',
+        setUp: () {
+          when(
+            () => pixelRepository.placePixelWithProgress(any(), any()),
+          ).thenAnswer(
+            (_) => Stream.value(const PowError(message: 'Not connected')),
+          );
+        },
+        build: () => CanvasBloc(pixelRepository: pixelRepository),
+        seed: () => const CanvasState(
+          status: CanvasStatus.ready,
+          canvasData: canvasData,
+        ),
+        act: (bloc) => bloc.add(
+          const PixelPlaced(position: position, color: color),
+        ),
+        expect: () => [
+          // Initial mining state
+          isA<CanvasState>().having(
+            (s) => s.placementProgress?.phase,
+            'phase',
+            PlacementPhase.mining,
+          ),
+          // Error state
+          isA<CanvasState>()
+              .having(
+                (s) => s.placementProgress?.phase,
+                'phase',
+                PlacementPhase.error,
+              )
+              .having(
+                (s) => s.placementProgress?.errorMessage,
                 'errorMessage',
-                'Exception: Out of bounds',
+                'Not connected',
               ),
         ],
       );

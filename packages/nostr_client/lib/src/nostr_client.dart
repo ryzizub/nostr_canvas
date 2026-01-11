@@ -4,6 +4,7 @@ import 'dart:isolate';
 
 import 'package:nostr/nostr.dart';
 import 'package:nostr_client/src/connection/connection_state.dart';
+import 'package:nostr_client/src/pow/pow_progress.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// Web platform detection (compile-time constant).
@@ -56,6 +57,93 @@ _PowResult _mineProofOfWork(_PowParams params) {
         difficulty: difficulty,
         createdAt: createdAt,
       );
+    }
+
+    nonce++;
+  }
+}
+
+/// Message types for isolate communication.
+sealed class _IsolateMessage {}
+
+class _IsolateProgress extends _IsolateMessage {
+  _IsolateProgress(this.noncesAttempted, this.currentDifficulty);
+  final int noncesAttempted;
+  final int currentDifficulty;
+}
+
+class _IsolateComplete extends _IsolateMessage {
+  _IsolateComplete(this.result);
+  final _PowResult result;
+}
+
+/// Parameters for isolate mining with progress reporting.
+class _PowIsolateParams {
+  _PowIsolateParams({
+    required this.sendPort,
+    required this.pubkey,
+    required this.kind,
+    required this.tags,
+    required this.content,
+    required this.targetDifficulty,
+  });
+
+  final SendPort sendPort;
+  final String pubkey;
+  final int kind;
+  final List<List<String>> tags;
+  final String content;
+  final int targetDifficulty;
+}
+
+/// Mine proof of work with progress reporting (for isolate).
+///
+/// Top-level function that sends progress updates via SendPort.
+void _mineProofOfWorkWithProgress(_PowIsolateParams params) {
+  final sendPort = params.sendPort;
+  final createdAt = currentUnixTimestampSeconds();
+  var nonce = 0;
+  var bestDifficulty = 0;
+  var lastReportNonce = 0;
+  const reportInterval = 10000;
+
+  while (true) {
+    final testTags = [
+      ...params.tags,
+      ['nonce', nonce.toString(), params.targetDifficulty.toString()],
+    ];
+
+    final event = Event.partial(
+      pubkey: params.pubkey,
+      createdAt: createdAt,
+      kind: params.kind,
+      tags: testTags,
+      content: params.content,
+    );
+    final eventId = event.getEventId();
+    final difficulty = _countLeadingZeroBits(eventId);
+
+    if (difficulty > bestDifficulty) {
+      bestDifficulty = difficulty;
+    }
+
+    // Report progress every reportInterval nonces
+    if (nonce - lastReportNonce >= reportInterval) {
+      sendPort.send(_IsolateProgress(nonce, bestDifficulty));
+      lastReportNonce = nonce;
+    }
+
+    if (difficulty >= params.targetDifficulty) {
+      sendPort.send(
+        _IsolateComplete(
+          _PowResult(
+            nonce: nonce.toString(),
+            difficulty: difficulty,
+            createdAt: createdAt,
+          ),
+        ),
+      );
+      return;
     }
 
     nonce++;
@@ -230,6 +318,192 @@ class NostrClient {
 
     final message = jsonEncode(['EVENT', event.toJson()]);
     _channel!.sink.add(message);
+  }
+
+  /// Publish an event with progress reporting.
+  ///
+  /// Returns a stream of [PowProgress] updates during mining and sending.
+  /// If [powDifficulty] > 0, emits mining progress before sending.
+  Stream<PowProgress> publishWithProgress({
+    required int kind,
+    required List<List<String>> tags,
+    required String content,
+  }) async* {
+    if (_currentState != ConnectionState.connected || _channel == null) {
+      yield const PowError(message: 'Not connected to relay');
+      return;
+    }
+
+    final eventTags = List<List<String>>.from(tags);
+    int? createdAt;
+    _PowResult? powResult;
+
+    if (powDifficulty > 0) {
+      final params = _PowParams(
+        pubkey: keychain.public,
+        kind: kind,
+        tags: eventTags,
+        content: content,
+        targetDifficulty: powDifficulty,
+      );
+
+      if (_isWeb) {
+        // Web: use async generator with chunked execution
+        await for (final progress in _mineProofOfWorkWeb(params)) {
+          yield progress;
+          if (progress is PowComplete) {
+            powResult = _PowResult(
+              nonce: progress.nonce,
+              difficulty: progress.achievedDifficulty,
+              createdAt: progress.createdAt,
+            );
+          }
+        }
+      } else {
+        // Native: use isolate with ports
+        await for (final progress in _mineProofOfWorkNative(params)) {
+          yield progress;
+          if (progress is PowComplete) {
+            powResult = _PowResult(
+              nonce: progress.nonce,
+              difficulty: progress.achievedDifficulty,
+              createdAt: progress.createdAt,
+            );
+          }
+        }
+      }
+
+      if (powResult == null) {
+        yield const PowError(message: 'Mining failed');
+        return;
+      }
+
+      eventTags.add([
+        'nonce',
+        powResult.nonce,
+        powDifficulty.toString(),
+      ]);
+      createdAt = powResult.createdAt;
+    }
+
+    // Signal sending phase
+    yield const PowSending();
+
+    try {
+      final event = Event.from(
+        kind: kind,
+        tags: eventTags,
+        content: content,
+        privkey: keychain.private,
+        createdAt: createdAt,
+      );
+
+      final message = jsonEncode(['EVENT', event.toJson()]);
+      _channel!.sink.add(message);
+
+      yield PowSuccess(eventId: event.id);
+    } on Object catch (e) {
+      yield PowError(message: e.toString());
+    }
+  }
+
+  /// Web implementation of PoW mining with progress.
+  Stream<PowProgress> _mineProofOfWorkWeb(_PowParams params) async* {
+    final createdAt = currentUnixTimestampSeconds();
+    final startTime = DateTime.now().millisecondsSinceEpoch;
+    var nonce = 0;
+    var bestDifficulty = 0;
+    const chunkSize = 1000;
+
+    while (true) {
+      // Process a chunk of nonces
+      for (var i = 0; i < chunkSize; i++) {
+        final testTags = [
+          ...params.tags,
+          ['nonce', nonce.toString(), params.targetDifficulty.toString()],
+        ];
+
+        final event = Event.partial(
+          pubkey: params.pubkey,
+          createdAt: createdAt,
+          kind: params.kind,
+          tags: testTags,
+          content: params.content,
+        );
+        final eventId = event.getEventId();
+        final difficulty = _countLeadingZeroBits(eventId);
+
+        if (difficulty > bestDifficulty) {
+          bestDifficulty = difficulty;
+        }
+
+        if (difficulty >= params.targetDifficulty) {
+          final elapsed = DateTime.now().millisecondsSinceEpoch - startTime;
+          yield PowComplete(
+            nonce: nonce.toString(),
+            achievedDifficulty: difficulty,
+            targetDifficulty: params.targetDifficulty,
+            elapsedMilliseconds: elapsed,
+            createdAt: createdAt,
+          );
+          return;
+        }
+
+        nonce++;
+      }
+
+      // Yield progress and allow UI to update
+      final elapsed = DateTime.now().millisecondsSinceEpoch - startTime;
+      yield PowMining(
+        noncesAttempted: nonce,
+        currentDifficulty: bestDifficulty,
+        targetDifficulty: params.targetDifficulty,
+        elapsedMilliseconds: elapsed,
+      );
+
+      // Yield to event loop for UI responsiveness
+      await Future<void>.delayed(Duration.zero);
+    }
+  }
+
+  /// Native implementation of PoW mining with progress using isolate.
+  Stream<PowProgress> _mineProofOfWorkNative(_PowParams params) async* {
+    final receivePort = ReceivePort();
+    final startTime = DateTime.now().millisecondsSinceEpoch;
+
+    final isolateParams = _PowIsolateParams(
+      sendPort: receivePort.sendPort,
+      pubkey: params.pubkey,
+      kind: params.kind,
+      tags: params.tags,
+      content: params.content,
+      targetDifficulty: params.targetDifficulty,
+    );
+
+    await Isolate.spawn(_mineProofOfWorkWithProgress, isolateParams);
+
+    await for (final message in receivePort) {
+      final elapsed = DateTime.now().millisecondsSinceEpoch - startTime;
+
+      if (message is _IsolateProgress) {
+        yield PowMining(
+          noncesAttempted: message.noncesAttempted,
+          currentDifficulty: message.currentDifficulty,
+          targetDifficulty: params.targetDifficulty,
+          elapsedMilliseconds: elapsed,
+        );
+      } else if (message is _IsolateComplete) {
+        yield PowComplete(
+          nonce: message.result.nonce,
+          achievedDifficulty: message.result.difficulty,
+          targetDifficulty: params.targetDifficulty,
+          elapsedMilliseconds: elapsed,
+          createdAt: message.result.createdAt,
+        );
+        receivePort.close();
+        return;
+      }
+    }
   }
 
   /// Subscribe to events matching the given filters.

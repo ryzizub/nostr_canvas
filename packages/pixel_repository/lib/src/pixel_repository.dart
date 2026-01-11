@@ -78,6 +78,36 @@ class PixelRepository {
     );
   }
 
+  /// Place a pixel with progress reporting.
+  ///
+  /// Returns a stream of [PowProgress] updates during mining and sending.
+  Stream<PowProgress> placePixelWithProgress(Position position, Color color) {
+    // Validate bounds
+    if (position.x < 0 ||
+        position.x >= canvasWidth ||
+        position.y < 0 ||
+        position.y >= canvasHeight) {
+      return Stream.value(
+        const PowError(message: 'Pixel position out of bounds'),
+      );
+    }
+
+    // Convert color to hex (RGB, no # prefix)
+    final argb = color.toARGB32();
+    final rgb = argb & 0xFFFFFF;
+    final colorHex = rgb.toRadixString(16).padLeft(6, '0');
+
+    return _nostrClient.publishWithProgress(
+      kind: pixelEventKind,
+      tags: [
+        ['x', position.x.toString()],
+        ['y', position.y.toString()],
+        ['color', colorHex],
+      ],
+      content: '',
+    );
+  }
+
   /// Dispose resources.
   Future<void> dispose() async {
     if (_subscriptionId != null) {

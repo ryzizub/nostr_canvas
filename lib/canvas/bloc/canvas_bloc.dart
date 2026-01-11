@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:nostr_client/nostr_client.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 part 'canvas_event.dart';
@@ -55,15 +56,65 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     Emitter<CanvasState> emit,
   ) async {
     if (state.status != CanvasStatus.ready) return;
+    if (state.placementProgress != null) return; // Already placing
+
+    emit(
+      state.copyWith(
+        placementProgress: () => const PlacementProgress(
+          phase: PlacementPhase.mining,
+        ),
+      ),
+    );
 
     try {
-      await _pixelRepository.placePixel(event.position, event.color);
-      // State update comes through canvasUpdates stream
+      await emit.forEach<PowProgress>(
+        _pixelRepository.placePixelWithProgress(event.position, event.color),
+        onData: (progress) {
+          return switch (progress) {
+            PowMining(
+              :final noncesAttempted,
+              :final currentDifficulty,
+              :final targetDifficulty,
+              :final hashRate,
+            ) =>
+              state.copyWith(
+                placementProgress: () => PlacementProgress(
+                  phase: PlacementPhase.mining,
+                  noncesAttempted: noncesAttempted,
+                  currentDifficulty: currentDifficulty,
+                  targetDifficulty: targetDifficulty,
+                  hashRate: hashRate,
+                ),
+              ),
+            PowComplete() => state.copyWith(
+              placementProgress: () => const PlacementProgress(
+                phase: PlacementPhase.sending,
+              ),
+            ),
+            PowSending() => state.copyWith(
+              placementProgress: () => const PlacementProgress(
+                phase: PlacementPhase.sending,
+              ),
+            ),
+            PowSuccess() => state.copyWith(
+              placementProgress: () => null,
+            ),
+            PowError(:final message) => state.copyWith(
+              placementProgress: () => PlacementProgress(
+                phase: PlacementPhase.error,
+                errorMessage: message,
+              ),
+            ),
+          };
+        },
+      );
     } on Exception catch (error) {
       emit(
         state.copyWith(
-          errorMessage: error.toString,
-          status: CanvasStatus.error,
+          placementProgress: () => PlacementProgress(
+            phase: PlacementPhase.error,
+            errorMessage: error.toString(),
+          ),
         ),
       );
     }
