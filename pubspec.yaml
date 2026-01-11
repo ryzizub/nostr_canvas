@@ -8,6 +8,7 @@ environment:
 
 workspace:
   - packages/pixel_repository
+  - packages/nostr_client
 
 dependencies:
   bloc: ^9.1.0
@@ -23,6 +24,7 @@ dependencies:
   google_fonts: ^6.3.3
   intl: any
   meta: ^1.16.0
+  nostr_client:
   pixel_repository:
 
 dev_dependencies:

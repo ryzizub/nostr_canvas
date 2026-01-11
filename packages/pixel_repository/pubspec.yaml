@@ -12,3 +12,4 @@ dependencies:
   equatable: ^2.0.7
   flutter:
     sdk: flutter
+  nostr_client:

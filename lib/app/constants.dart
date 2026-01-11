@@ -1,5 +1,11 @@
 /// Constants for the canvas game.
-abstract final class CanvasConstants {
+abstract final class Constants {
+  /// Canvas width in pixels.
+  static const int canvasWidth = 1000;
+
+  /// Canvas height in pixels.
+  static const int canvasHeight = 1000;
+
   /// Size of each pixel in world units.
   /// All grid coordinates are multiplied by this to get world position.
   static const double tileSize = 10;

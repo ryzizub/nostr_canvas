@@ -12,7 +12,7 @@ class CanvasPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CanvasBloc(
-        pixelRepository: InMemoryPixelRepository(),
+        pixelRepository: context.read<PixelRepository>(),
       )..add(const CanvasLoadRequested()),
       child: const CanvasView(),
     );
