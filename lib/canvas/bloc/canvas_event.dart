@@ -31,3 +31,8 @@ class CameraPositionChanged extends CanvasEvent {
 class CanvasLoadRequested extends CanvasEvent {
   const CanvasLoadRequested();
 }
+
+/// Grid visibility toggled
+class GridToggled extends CanvasEvent {
+  const GridToggled();
+}

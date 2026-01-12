@@ -9,6 +9,7 @@ class CanvasState extends Equatable {
     this.zoomLevel = 1.0,
     this.cameraPosition = Offset.zero,
     this.errorMessage,
+    this.gridEnabled = true,
   });
 
   final CanvasStatus status;
@@ -16,6 +17,7 @@ class CanvasState extends Equatable {
   final double zoomLevel;
   final Offset cameraPosition;
   final String? errorMessage;
+  final bool gridEnabled;
 
   @override
   List<Object?> get props => [
@@ -24,6 +26,7 @@ class CanvasState extends Equatable {
     zoomLevel,
     cameraPosition,
     errorMessage,
+    gridEnabled,
   ];
 
   CanvasState copyWith({
@@ -32,6 +35,7 @@ class CanvasState extends Equatable {
     double? zoomLevel,
     Offset? cameraPosition,
     String? Function()? errorMessage,
+    bool? gridEnabled,
   }) {
     return CanvasState(
       status: status ?? this.status,
@@ -39,6 +43,7 @@ class CanvasState extends Equatable {
       zoomLevel: zoomLevel ?? this.zoomLevel,
       cameraPosition: cameraPosition ?? this.cameraPosition,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
+      gridEnabled: gridEnabled ?? this.gridEnabled,
     );
   }
 }

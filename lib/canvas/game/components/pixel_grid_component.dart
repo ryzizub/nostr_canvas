@@ -29,14 +29,15 @@ class PixelGridComponent extends PositionComponent
 
   @override
   bool listenWhen(CanvasState previousState, CanvasState newState) {
-    return previousState.canvasData != newState.canvasData;
+    return previousState.canvasData != newState.canvasData ||
+        previousState.gridEnabled != newState.gridEnabled;
   }
 
   @override
   void onInitialState(CanvasState state) {
     // Handle initial state when component mounts
     if (state.status == CanvasStatus.ready) {
-      unawaited(_updateCanvasSize(state.canvasData!));
+      unawaited(_updateCanvasSize(state.canvasData!, state.gridEnabled));
       unawaited(_updatePixels(state.canvasData!));
     }
   }
@@ -44,12 +45,26 @@ class PixelGridComponent extends PositionComponent
   @override
   void onNewState(CanvasState state) {
     if (state.status == CanvasStatus.ready) {
-      unawaited(_updateCanvasSize(state.canvasData!));
+      unawaited(_updateCanvasSize(state.canvasData!, state.gridEnabled));
       unawaited(_updatePixels(state.canvasData!));
+    }
+    unawaited(_updateGridVisibility(state.gridEnabled));
+  }
+
+  Future<void> _updateGridVisibility(bool gridEnabled) async {
+    if (_gridLines != null) {
+      if (gridEnabled && !_gridLines!.isMounted) {
+        await add(_gridLines!);
+      } else if (!gridEnabled && _gridLines!.isMounted) {
+        _gridLines!.removeFromParent();
+      }
     }
   }
 
-  Future<void> _updateCanvasSize(CanvasData canvasData) async {
+  Future<void> _updateCanvasSize(
+    CanvasData canvasData,
+    bool gridEnabled,
+  ) async {
     // Skip if dimensions haven't changed
     if (_currentGridWidth == canvasData.width &&
         _currentGridHeight == canvasData.height) {
@@ -65,14 +80,17 @@ class PixelGridComponent extends PositionComponent
       canvasData.height * Constants.tileSize,
     );
 
-    // Remove old grid lines and add new ones with correct dimensions
+    // Remove old grid lines and create new ones with correct dimensions
     _gridLines?.removeFromParent();
     _gridLines = GridLinesComponent(
       gridWidth: canvasData.width,
       gridHeight: canvasData.height,
     );
 
-    await add(_gridLines!);
+    // Only add grid lines if grid is enabled
+    if (gridEnabled) {
+      await add(_gridLines!);
+    }
   }
 
   Future<void> _updatePixels(CanvasData canvasData) async {
