@@ -167,6 +167,7 @@ class PixelRepository {
       position: Position(x, y),
       color: Color(argbColor),
       timestamp: DateTime.fromMillisecondsSinceEpoch(event.createdAt * 1000),
+      pubkey: event.pubkey,
     );
   }
 }

@@ -39,6 +39,7 @@ void main() {
         position: const Position(10, 20),
         color: Colors.orange,
         timestamp: DateTime.now(),
+        pubkey: 'testpubkey123',
       );
 
       final updated = canvasData.placePixel(pixel);
@@ -60,6 +61,7 @@ void main() {
         position: const Position(10, 20),
         color: Colors.orange,
         timestamp: DateTime.now(),
+        pubkey: 'testpubkey123',
       );
 
       canvasData.placePixel(pixel);
@@ -77,12 +79,14 @@ void main() {
         position: const Position(10, 20),
         color: Colors.orange,
         timestamp: DateTime.now(),
+        pubkey: 'testpubkey123',
       );
 
       final pixel2 = Pixel(
         position: const Position(10, 20),
         color: Colors.blue,
         timestamp: DateTime.now(),
+        pubkey: 'testpubkey456',
       );
 
       final updated1 = canvasData.placePixel(pixel1);
@@ -105,18 +109,21 @@ void main() {
         position: const Position(10, 20),
         color: Colors.orange,
         timestamp: DateTime.now(),
+        pubkey: 'testpubkey1',
       );
 
       final pixel2 = Pixel(
         position: const Position(30, 40),
         color: Colors.orange,
         timestamp: DateTime.now(),
+        pubkey: 'testpubkey2',
       );
 
       final pixel3 = Pixel(
         position: const Position(50, 60),
         color: Colors.orange,
         timestamp: DateTime.now(),
+        pubkey: 'testpubkey3',
       );
 
       final updated = canvasData

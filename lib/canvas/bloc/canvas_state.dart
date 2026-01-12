@@ -10,6 +10,8 @@ class CanvasState extends Equatable {
     this.cameraPosition = Offset.zero,
     this.errorMessage,
     this.gridEnabled = true,
+    this.inspectModeEnabled = false,
+    this.inspectedPixel,
   });
 
   final CanvasStatus status;
@@ -18,6 +20,8 @@ class CanvasState extends Equatable {
   final Offset cameraPosition;
   final String? errorMessage;
   final bool gridEnabled;
+  final bool inspectModeEnabled;
+  final Pixel? inspectedPixel;
 
   @override
   List<Object?> get props => [
@@ -27,6 +31,8 @@ class CanvasState extends Equatable {
     cameraPosition,
     errorMessage,
     gridEnabled,
+    inspectModeEnabled,
+    inspectedPixel,
   ];
 
   CanvasState copyWith({
@@ -36,6 +42,8 @@ class CanvasState extends Equatable {
     Offset? cameraPosition,
     String? Function()? errorMessage,
     bool? gridEnabled,
+    bool? inspectModeEnabled,
+    Pixel? Function()? inspectedPixel,
   }) {
     return CanvasState(
       status: status ?? this.status,
@@ -44,6 +52,9 @@ class CanvasState extends Equatable {
       cameraPosition: cameraPosition ?? this.cameraPosition,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
       gridEnabled: gridEnabled ?? this.gridEnabled,
+      inspectModeEnabled: inspectModeEnabled ?? this.inspectModeEnabled,
+      inspectedPixel:
+          inspectedPixel != null ? inspectedPixel() : this.inspectedPixel,
     );
   }
 }

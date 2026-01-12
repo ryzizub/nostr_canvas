@@ -36,3 +36,23 @@ class CanvasLoadRequested extends CanvasEvent {
 class GridToggled extends CanvasEvent {
   const GridToggled();
 }
+
+/// Inspect mode toggled
+class InspectModeToggled extends CanvasEvent {
+  const InspectModeToggled();
+}
+
+/// Pixel inspected (tapped in inspect mode)
+class PixelInspected extends CanvasEvent {
+  const PixelInspected(this.pixel);
+
+  final Pixel pixel;
+
+  @override
+  List<Object?> get props => [pixel];
+}
+
+/// Clear inspected pixel (dialog dismissed)
+class PixelInspectDismissed extends CanvasEvent {
+  const PixelInspectDismissed();
+}

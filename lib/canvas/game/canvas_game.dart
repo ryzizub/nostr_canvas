@@ -147,6 +147,15 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
       return;
     }
 
+    // Check if inspect mode is enabled
+    if (state.inspectModeEnabled) {
+      final pixel = canvasData.getPixel(gridPosition);
+      if (pixel != null) {
+        canvasBloc.add(PixelInspected(pixel));
+      }
+      return;
+    }
+
     // Add click highlight
     final pixelGrid = world.descendants().whereType<PixelGridComponent>().first;
     unawaited(pixelGrid.addClickHighlight(gridPosition.x, gridPosition.y));

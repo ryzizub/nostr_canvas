@@ -15,6 +15,9 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     on<ZoomChanged>(_onZoomChanged);
     on<CameraPositionChanged>(_onCameraPositionChanged);
     on<GridToggled>(_onGridToggled);
+    on<InspectModeToggled>(_onInspectModeToggled);
+    on<PixelInspected>(_onPixelInspected);
+    on<PixelInspectDismissed>(_onPixelInspectDismissed);
   }
 
   final PixelRepository _pixelRepository;
@@ -73,5 +76,26 @@ class CanvasBloc extends Bloc<CanvasEvent, CanvasState> {
     Emitter<CanvasState> emit,
   ) {
     emit(state.copyWith(gridEnabled: !state.gridEnabled));
+  }
+
+  void _onInspectModeToggled(
+    InspectModeToggled event,
+    Emitter<CanvasState> emit,
+  ) {
+    emit(state.copyWith(inspectModeEnabled: !state.inspectModeEnabled));
+  }
+
+  void _onPixelInspected(
+    PixelInspected event,
+    Emitter<CanvasState> emit,
+  ) {
+    emit(state.copyWith(inspectedPixel: () => event.pixel));
+  }
+
+  void _onPixelInspectDismissed(
+    PixelInspectDismissed event,
+    Emitter<CanvasState> emit,
+  ) {
+    emit(state.copyWith(inspectedPixel: () => null));
   }
 }

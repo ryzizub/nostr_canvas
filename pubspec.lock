@@ -478,7 +478,7 @@ packages:
     source: hosted
     version: "2.0.2"
   nostr:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: nostr
       sha256: a99942e4eedd5823d16f42e6df96240488028666a329ee1047552f79db564123

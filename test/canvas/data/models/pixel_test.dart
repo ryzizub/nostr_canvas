@@ -7,18 +7,21 @@ void main() {
     final timestamp = DateTime(2024);
     const position = Position(10, 20);
     const color = Colors.orange;
+    const pubkey = 'abc123def456';
 
     test('can be instantiated', () {
       final pixel = Pixel(
         position: position,
         color: color,
         timestamp: timestamp,
+        pubkey: pubkey,
       );
 
       expect(pixel, isNotNull);
       expect(pixel.position, equals(position));
       expect(pixel.color, equals(color));
       expect(pixel.timestamp, equals(timestamp));
+      expect(pixel.pubkey, equals(pubkey));
     });
 
     test('supports value equality', () {
@@ -26,12 +29,14 @@ void main() {
         position: position,
         color: color,
         timestamp: timestamp,
+        pubkey: pubkey,
       );
 
       final pixel2 = Pixel(
         position: position,
         color: color,
         timestamp: timestamp,
+        pubkey: pubkey,
       );
 
       expect(pixel1, equals(pixel2));
@@ -42,12 +47,14 @@ void main() {
         position: position,
         color: color,
         timestamp: timestamp,
+        pubkey: pubkey,
       );
 
       final pixel2 = Pixel(
         position: const Position(11, 20),
         color: color,
         timestamp: timestamp,
+        pubkey: pubkey,
       );
 
       expect(pixel1, isNot(equals(pixel2)));
@@ -58,6 +65,7 @@ void main() {
         position: position,
         color: color,
         timestamp: timestamp,
+        pubkey: pubkey,
       );
 
       const newPosition = Position(30, 40);
@@ -66,6 +74,7 @@ void main() {
       expect(updated.position, equals(newPosition));
       expect(updated.color, equals(color));
       expect(updated.timestamp, equals(timestamp));
+      expect(updated.pubkey, equals(pubkey));
       expect(updated, isNot(equals(original)));
     });
 
@@ -74,6 +83,7 @@ void main() {
         position: position,
         color: color,
         timestamp: timestamp,
+        pubkey: pubkey,
       );
 
       final copy = original.copyWith();

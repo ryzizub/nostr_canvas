@@ -7,6 +7,7 @@ import 'package:nes_ui/nes_ui.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
 import 'package:nostr_place/canvas/widgets/canvas_toolbar.dart';
+import 'package:nostr_place/canvas/widgets/pixel_info_dialog.dart';
 import 'package:nostr_place/canvas/widgets/zoom_controls.dart';
 import 'package:nostr_place/color_selection/color_selection.dart';
 import 'package:nostr_place/pow/pow.dart';
@@ -21,6 +22,23 @@ class CanvasView extends StatefulWidget {
 class _CanvasViewState extends State<CanvasView> {
   CanvasGame? _game;
   bool _isDialogShowing = false;
+  bool _isInspectDialogShowing = false;
+
+  void _handleInspectStateChange(BuildContext context, CanvasState state) {
+    if (state.inspectedPixel != null && !_isInspectDialogShowing) {
+      _isInspectDialogShowing = true;
+      final canvasBloc = context.read<CanvasBloc>();
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (_) => PixelInfoDialog(pixel: state.inspectedPixel!),
+        ).then((_) {
+          _isInspectDialogShowing = false;
+          canvasBloc.add(const PixelInspectDismissed());
+        }),
+      );
+    }
+  }
 
   void _handlePowStateChange(BuildContext context, PowState state) {
     if (state.status != PowStatus.idle && !_isDialogShowing) {
@@ -88,9 +106,18 @@ class _CanvasViewState extends State<CanvasView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<PowBloc, PowState>(
-      listenWhen: (previous, current) => previous.status != current.status,
-      listener: _handlePowStateChange,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PowBloc, PowState>(
+          listenWhen: (previous, current) => previous.status != current.status,
+          listener: _handlePowStateChange,
+        ),
+        BlocListener<CanvasBloc, CanvasState>(
+          listenWhen: (previous, current) =>
+              previous.inspectedPixel != current.inspectedPixel,
+          listener: _handleInspectStateChange,
+        ),
+      ],
       child: Scaffold(
         body: BlocBuilder<CanvasBloc, CanvasState>(
           builder: (context, state) {

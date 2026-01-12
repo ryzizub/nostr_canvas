@@ -8,24 +8,28 @@ class Pixel extends Equatable {
     required this.position,
     required this.color,
     required this.timestamp,
+    required this.pubkey,
   });
 
   final Position position;
   final Color color;
   final DateTime timestamp;
+  final String pubkey;
 
   @override
-  List<Object?> get props => [position, color, timestamp];
+  List<Object?> get props => [position, color, timestamp, pubkey];
 
   Pixel copyWith({
     Position? position,
     Color? color,
     DateTime? timestamp,
+    String? pubkey,
   }) {
     return Pixel(
       position: position ?? this.position,
       color: color ?? this.color,
       timestamp: timestamp ?? this.timestamp,
+      pubkey: pubkey ?? this.pubkey,
     );
   }
 }
