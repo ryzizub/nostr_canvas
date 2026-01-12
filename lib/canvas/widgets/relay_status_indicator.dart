@@ -28,9 +28,9 @@ class RelayStatusIndicator extends StatelessWidget {
 
   NesIconData _getIconData(ConnectionState state) {
     return switch (state) {
-      ConnectionState.connected => NesIcons.check,
-      ConnectionState.connecting => NesIcons.radio,
-      ConnectionState.reconnecting => NesIcons.radio,
+      ConnectionState.connected => NesIcons.radio,
+      ConnectionState.connecting => NesIcons.hourglassMiddle,
+      ConnectionState.reconnecting => NesIcons.hourglassMiddle,
       ConnectionState.disconnected => NesIcons.close,
       ConnectionState.error => NesIcons.exclamationMarkBlock,
     };

@@ -9,11 +9,6 @@ import 'package:nostr_place/color_selection/color_selection.dart';
 class ColorPickerButton extends StatelessWidget {
   const ColorPickerButton({super.key});
 
-  Color _getContrastColor(Color color) {
-    final luminance = color.computeLuminance();
-    return luminance > 0.5 ? Colors.black : Colors.white;
-  }
-
   void _showColorPicker(BuildContext context, Color currentColor) {
     unawaited(
       showDialog<void>(
@@ -43,8 +38,8 @@ class ColorPickerButton extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               backgroundColor: state.selectedColor,
               child: NesIcon(
-                iconData: NesIcons.gallery,
-                primaryColor: _getContrastColor(state.selectedColor),
+                iconData: NesIcons.block,
+                primaryColor: state.selectedColor,
               ),
             ),
           ),
