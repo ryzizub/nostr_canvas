@@ -9,10 +9,10 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get appTitle => 'Nostr Place';
+  String get appTitle => 'Nostr Canvas';
 
   @override
-  String get welcomeTitle => 'Nostr Place';
+  String get welcomeTitle => 'Nostr Canvas';
 
   @override
   String get welcomeSubtitle => 'Lienzo Colaborativo de Píxeles';

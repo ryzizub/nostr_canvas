@@ -6,7 +6,7 @@ import 'package:nostr/nostr.dart' show Nip19;
 import 'package:nostr_client/nostr_client.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
-/// Authentication repository for Nostr Place.
+/// Authentication repository for Nostr Canvas.
 ///
 /// Handles credential storage, NostrClient lifecycle, and authentication.
 /// This is a pure data layer - no state management.
@@ -25,8 +25,8 @@ class AuthRepository {
            storage ??
            const FlutterSecureStorage(
              webOptions: WebOptions(
-               dbName: 'nostr_place_auth',
-               publicKey: 'nostr_place_auth_key',
+               dbName: 'nostr_canvas_auth',
+               publicKey: 'nostr_canvas_auth_key',
              ),
            );
 

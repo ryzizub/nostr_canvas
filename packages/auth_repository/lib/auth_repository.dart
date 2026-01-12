@@ -1,4 +1,4 @@
-/// Authentication repository for Nostr Place.
+/// Authentication repository for Nostr Canvas.
 library;
 
 export 'src/auth_repository.dart';

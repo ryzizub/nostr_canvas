@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/canvas/widgets/color_picker_button.dart';
-import 'package:nostr_place/canvas/widgets/grid_toggle_button.dart';
-import 'package:nostr_place/canvas/widgets/inspect_mode_button.dart';
-import 'package:nostr_place/canvas/widgets/logout_button.dart';
-import 'package:nostr_place/canvas/widgets/relay_status_indicator.dart';
+import 'package:nostr_canvas/canvas/widgets/color_picker_button.dart';
+import 'package:nostr_canvas/canvas/widgets/grid_toggle_button.dart';
+import 'package:nostr_canvas/canvas/widgets/inspect_mode_button.dart';
+import 'package:nostr_canvas/canvas/widgets/logout_button.dart';
+import 'package:nostr_canvas/canvas/widgets/relay_status_indicator.dart';
 
 class CanvasToolbar extends StatelessWidget {
   const CanvasToolbar({super.key});

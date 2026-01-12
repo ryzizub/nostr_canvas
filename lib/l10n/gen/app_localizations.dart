@@ -101,13 +101,13 @@ abstract class AppLocalizations {
   /// The title of the application
   ///
   /// In en, this message translates to:
-  /// **'Nostr Place'**
+  /// **'Nostr Canvas'**
   String get appTitle;
 
   /// Welcome title on the home page
   ///
   /// In en, this message translates to:
-  /// **'Nostr Place'**
+  /// **'Nostr Canvas'**
   String get welcomeTitle;
 
   /// Subtitle describing the app

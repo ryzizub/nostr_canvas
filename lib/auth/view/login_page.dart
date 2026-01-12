@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nostr_place/auth/view/login_view.dart';
+import 'package:nostr_canvas/auth/view/login_view.dart';
 
 /// Entry point page for the login feature.
 ///

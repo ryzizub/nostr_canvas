@@ -4,9 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:nostr_canvas/app/router.dart';
+import 'package:nostr_canvas/auth/auth.dart';
 import 'package:nostr_client/nostr_client.dart';
-import 'package:nostr_place/app/router.dart';
-import 'package:nostr_place/auth/auth.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/auth/auth.dart';
-import 'package:nostr_place/auth/widgets/login_options.dart';
+import 'package:nostr_canvas/auth/auth.dart';
+import 'package:nostr_canvas/auth/widgets/login_options.dart';
 
 /// Main view for the login screen.
 class LoginView extends StatelessWidget {

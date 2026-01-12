@@ -1,5 +1,5 @@
 name: auth_repository
-description: Authentication repository for Nostr Place
+description: Authentication repository for Nostr Canvas
 publish_to: none
 
 environment:

@@ -1,5 +1,5 @@
 name: nostr_client
-description: Nostr protocol client abstraction for Nostr Place
+description: Nostr protocol client abstraction for Nostr Canvas
 version: 0.1.0
 publish_to: 'none'
 

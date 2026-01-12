@@ -1,5 +1,5 @@
 name: pixel_repository
-description: Pixel canvas repository and models for Nostr Place
+description: Pixel canvas repository and models for Nostr Canvas
 version: 0.1.0
 publish_to: 'none'
 

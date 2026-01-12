@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame_bloc/flame_bloc.dart';
-import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
-import 'package:nostr_place/canvas/game/canvas_game.dart';
+import 'package:nostr_canvas/canvas/bloc/canvas_bloc.dart';
+import 'package:nostr_canvas/canvas/game/canvas_game.dart';
 
 /// Syncs camera state from bloc to Flame camera.
 ///

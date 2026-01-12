@@ -1,9 +1,9 @@
 services:
-  nostr-place:
+  nostr-canvas:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nostr-place
+    container_name: nostr-canvas
     ports:
       - "8484:8080"
     restart: unless-stopped

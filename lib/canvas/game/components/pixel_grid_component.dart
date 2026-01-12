@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame_bloc/flame_bloc.dart';
-import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
-import 'package:nostr_place/canvas/game/canvas_game.dart';
-import 'package:nostr_place/canvas/game/components/click_highlight_component.dart';
-import 'package:nostr_place/canvas/game/components/grid_lines_component.dart';
-import 'package:nostr_place/canvas/game/components/pixel_component.dart';
-import 'package:nostr_place/core/constants.dart';
+import 'package:nostr_canvas/canvas/bloc/canvas_bloc.dart';
+import 'package:nostr_canvas/canvas/game/canvas_game.dart';
+import 'package:nostr_canvas/canvas/game/components/click_highlight_component.dart';
+import 'package:nostr_canvas/canvas/game/components/grid_lines_component.dart';
+import 'package:nostr_canvas/canvas/game/components/pixel_component.dart';
+import 'package:nostr_canvas/core/constants.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 /// Renders the entire pixel grid and handles user interactions.

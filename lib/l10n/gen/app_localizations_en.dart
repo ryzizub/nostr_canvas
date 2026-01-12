@@ -9,10 +9,10 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Nostr Place';
+  String get appTitle => 'Nostr Canvas';
 
   @override
-  String get welcomeTitle => 'Nostr Place';
+  String get welcomeTitle => 'Nostr Canvas';
 
   @override
   String get welcomeSubtitle => 'Collaborative Pixel Canvas';

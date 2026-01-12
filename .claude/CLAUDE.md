@@ -1,4 +1,4 @@
-# Nostr Place - Claude AI Context
+# Nostr Canvas - Claude AI Context
 
 This is a Nostr-based collaborative pixel canvas project (inspired by Reddit's r/place).
 

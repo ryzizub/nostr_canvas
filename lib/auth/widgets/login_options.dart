@@ -3,9 +3,9 @@ import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nes_ui/nes_ui.dart';
+import 'package:nostr_canvas/auth/auth.dart';
+import 'package:nostr_canvas/auth/widgets/import_key_dialog.dart';
 import 'package:nostr_client/nostr_client.dart' show Nip07Signer;
-import 'package:nostr_place/auth/auth.dart';
-import 'package:nostr_place/auth/widgets/import_key_dialog.dart';
 
 /// Login options container with guest, import, and NIP-07 buttons.
 class LoginOptions extends StatelessWidget {
@@ -54,7 +54,7 @@ class _AppTitle extends StatelessWidget {
     return const Column(
       children: [
         Text(
-          'Nostr Place',
+          'Nostr Canvas',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

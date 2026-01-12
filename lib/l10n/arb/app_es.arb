@@ -1,7 +1,7 @@
 {
   "@@locale": "es",
-  "appTitle": "Nostr Place",
-  "welcomeTitle": "Nostr Place",
+  "appTitle": "Nostr Canvas",
+  "welcomeTitle": "Nostr Canvas",
   "welcomeSubtitle": "Lienzo Colaborativo de Píxeles",
   "loading": "Cargando...",
   "error": "Ocurrió un error",

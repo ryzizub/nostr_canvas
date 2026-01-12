@@ -3,7 +3,7 @@ import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/auth/auth.dart';
+import 'package:nostr_canvas/auth/auth.dart';
 
 /// Button to log out and return to login screen.
 class LogoutButton extends StatelessWidget {

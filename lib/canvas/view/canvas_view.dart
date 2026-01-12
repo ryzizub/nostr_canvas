@@ -4,13 +4,13 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
-import 'package:nostr_place/canvas/game/canvas_game.dart';
-import 'package:nostr_place/canvas/widgets/canvas_toolbar.dart';
-import 'package:nostr_place/canvas/widgets/pixel_info_dialog.dart';
-import 'package:nostr_place/canvas/widgets/zoom_controls.dart';
-import 'package:nostr_place/color_selection/color_selection.dart';
-import 'package:nostr_place/pow/pow.dart';
+import 'package:nostr_canvas/canvas/bloc/canvas_bloc.dart';
+import 'package:nostr_canvas/canvas/game/canvas_game.dart';
+import 'package:nostr_canvas/canvas/widgets/canvas_toolbar.dart';
+import 'package:nostr_canvas/canvas/widgets/pixel_info_dialog.dart';
+import 'package:nostr_canvas/canvas/widgets/zoom_controls.dart';
+import 'package:nostr_canvas/color_selection/color_selection.dart';
+import 'package:nostr_canvas/pow/pow.dart';
 
 class CanvasView extends StatefulWidget {
   const CanvasView({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nes_ui/nes_ui.dart';
+import 'package:nostr_canvas/canvas/bloc/relay_bloc.dart';
 import 'package:nostr_client/nostr_client.dart';
-import 'package:nostr_place/canvas/bloc/relay_bloc.dart';
 
 class RelayStatusIndicator extends StatelessWidget {
   const RelayStatusIndicator({super.key});

@@ -5,12 +5,12 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
-import 'package:nostr_place/canvas/game/components/camera_controller_component.dart';
-import 'package:nostr_place/canvas/game/components/pixel_grid_component.dart';
-import 'package:nostr_place/color_selection/color_selection.dart';
-import 'package:nostr_place/core/constants.dart';
-import 'package:nostr_place/pow/pow.dart';
+import 'package:nostr_canvas/canvas/bloc/canvas_bloc.dart';
+import 'package:nostr_canvas/canvas/game/components/camera_controller_component.dart';
+import 'package:nostr_canvas/canvas/game/components/pixel_grid_component.dart';
+import 'package:nostr_canvas/color_selection/color_selection.dart';
+import 'package:nostr_canvas/core/constants.dart';
+import 'package:nostr_canvas/pow/pow.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 /// Main FlameGame for the pixel canvas.

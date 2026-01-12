@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:nostr_place/core/constants.dart';
+import 'package:nostr_canvas/core/constants.dart';
 
 /// Displays a highlight border around a recently clicked pixel.
 class ClickHighlightComponent extends PositionComponent {

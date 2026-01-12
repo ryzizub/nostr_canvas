@@ -3,8 +3,8 @@ import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/color_picker/color_picker.dart';
-import 'package:nostr_place/color_selection/color_selection.dart';
+import 'package:nostr_canvas/color_picker/color_picker.dart';
+import 'package:nostr_canvas/color_selection/color_selection.dart';
 
 class ColorPickerButton extends StatelessWidget {
   const ColorPickerButton({super.key});

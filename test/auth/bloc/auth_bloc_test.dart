@@ -2,9 +2,9 @@ import 'package:auth_repository/auth_repository.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:nostr_canvas/auth/bloc/auth_bloc.dart';
 import 'package:nostr_client/nostr_client.dart'
     show InvalidNsecException, Nip07NotAvailableException;
-import 'package:nostr_place/auth/bloc/auth_bloc.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 

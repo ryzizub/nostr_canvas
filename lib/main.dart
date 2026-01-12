@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:nostr_canvas/app/app.dart';
+import 'package:nostr_canvas/app/app_bloc_observer.dart';
+import 'package:nostr_canvas/app/router.dart';
+import 'package:nostr_canvas/auth/auth.dart';
+import 'package:nostr_canvas/core/constants.dart';
 import 'package:nostr_client/nostr_client.dart';
-import 'package:nostr_place/app/app.dart';
-import 'package:nostr_place/app/app_bloc_observer.dart';
-import 'package:nostr_place/app/router.dart';
-import 'package:nostr_place/auth/auth.dart';
-import 'package:nostr_place/core/constants.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 void main() async {

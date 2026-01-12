@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nes_ui/nes_ui.dart';
-import 'package:nostr_place/pow/bloc/pow_bloc.dart';
+import 'package:nostr_canvas/pow/bloc/pow_bloc.dart';
 
 /// Dialog showing PoW mining and sending progress with NES styling.
 class PowProgressDialog extends StatelessWidget {
