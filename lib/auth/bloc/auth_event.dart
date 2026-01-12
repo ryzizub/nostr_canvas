@@ -20,6 +20,9 @@ final class AuthImportRequested extends AuthEvent {
   const AuthImportRequested(this.nsec);
 
   final String nsec;
+
+  @override
+  String toString() => 'AuthImportRequested(nsec: [REDACTED])';
 }
 
 /// User chose NIP-07 login.
