@@ -15,8 +15,7 @@ class InspectModeButton extends StatelessWidget {
         final message = state.inspectModeEnabled
             ? 'Exit inspect mode'
             : 'Inspect pixel';
-        final iconColor =
-            state.inspectModeEnabled ? Colors.blue : Colors.white;
+        final iconColor = state.inspectModeEnabled ? Colors.blue : Colors.white;
         return Tooltip(
           message: message,
           preferBelow: false,

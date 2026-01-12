@@ -107,14 +107,16 @@ class _ImportKeyButton extends StatelessWidget {
   }
 
   void _showImportDialog(BuildContext context) {
-    unawaited(showDialog<void>(
-      context: context,
-      builder: (dialogContext) => ImportKeyDialog(
-        onImport: (nsec) {
-          context.read<AuthBloc>().add(AuthImportRequested(nsec));
-        },
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) => ImportKeyDialog(
+          onImport: (nsec) {
+            context.read<AuthBloc>().add(AuthImportRequested(nsec));
+          },
+        ),
       ),
-    ));
+    );
   }
 }
 

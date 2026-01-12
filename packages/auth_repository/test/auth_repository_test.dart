@@ -11,7 +11,6 @@ class MockNostrClient extends Mock implements NostrClient {}
 
 class MockPixelRepository extends Mock implements PixelRepository {}
 
-
 void main() {
   late MockFlutterSecureStorage mockStorage;
   late MockNostrClient mockNostrClient;
@@ -24,22 +23,28 @@ void main() {
     mockPixelRepository = MockPixelRepository();
 
     // Default storage stubs
-    when(() => mockStorage.read(key: any(named: 'key')))
-        .thenAnswer((_) async => null);
-    when(() => mockStorage.write(
-          key: any(named: 'key'),
-          value: any(named: 'value'),
-        )).thenAnswer((_) async {});
-    when(() => mockStorage.delete(key: any(named: 'key')))
-        .thenAnswer((_) async {});
+    when(
+      () => mockStorage.read(key: any(named: 'key')),
+    ).thenAnswer((_) async => null);
+    when(
+      () => mockStorage.write(
+        key: any(named: 'key'),
+        value: any(named: 'value'),
+      ),
+    ).thenAnswer((_) async {});
+    when(
+      () => mockStorage.delete(key: any(named: 'key')),
+    ).thenAnswer((_) async {});
 
     // Default NostrClient stubs
     when(() => mockNostrClient.isInitialized).thenReturn(false);
-    when(() => mockNostrClient.initialize(
-          relayUrl: any(named: 'relayUrl'),
-          signer: any(named: 'signer'),
-          powDifficulty: any(named: 'powDifficulty'),
-        )).thenAnswer((_) async {});
+    when(
+      () => mockNostrClient.initialize(
+        relayUrl: any(named: 'relayUrl'),
+        signer: any(named: 'signer'),
+        powDifficulty: any(named: 'powDifficulty'),
+      ),
+    ).thenAnswer((_) async {});
     when(() => mockNostrClient.connect()).thenAnswer((_) async {});
     when(() => mockNostrClient.deinitialize()).thenAnswer((_) async {});
 
@@ -58,8 +63,9 @@ void main() {
   group('AuthRepository', () {
     group('checkStoredCredentials', () {
       test('returns null when no credentials stored', () async {
-        when(() => mockStorage.read(key: 'auth_method'))
-            .thenAnswer((_) async => null);
+        when(
+          () => mockStorage.read(key: 'auth_method'),
+        ).thenAnswer((_) async => null);
 
         final result = await authRepository.checkStoredCredentials();
 
@@ -67,10 +73,12 @@ void main() {
       });
 
       test('returns null and clears credentials for NIP-07 method', () async {
-        when(() => mockStorage.read(key: 'auth_method'))
-            .thenAnswer((_) async => 'nip07');
-        when(() => mockStorage.read(key: 'auth_public_key'))
-            .thenAnswer((_) async => 'pubkey123');
+        when(
+          () => mockStorage.read(key: 'auth_method'),
+        ).thenAnswer((_) async => 'nip07');
+        when(
+          () => mockStorage.read(key: 'auth_public_key'),
+        ).thenAnswer((_) async => 'pubkey123');
 
         final result = await authRepository.checkStoredCredentials();
 
@@ -81,12 +89,15 @@ void main() {
       });
 
       test('returns null when private key is missing', () async {
-        when(() => mockStorage.read(key: 'auth_method'))
-            .thenAnswer((_) async => 'guest');
-        when(() => mockStorage.read(key: 'auth_public_key'))
-            .thenAnswer((_) async => 'pubkey123');
-        when(() => mockStorage.read(key: 'auth_private_key'))
-            .thenAnswer((_) async => null);
+        when(
+          () => mockStorage.read(key: 'auth_method'),
+        ).thenAnswer((_) async => 'guest');
+        when(
+          () => mockStorage.read(key: 'auth_public_key'),
+        ).thenAnswer((_) async => 'pubkey123');
+        when(
+          () => mockStorage.read(key: 'auth_private_key'),
+        ).thenAnswer((_) async => null);
 
         final result = await authRepository.checkStoredCredentials();
 
@@ -98,21 +109,26 @@ void main() {
         const privateKey =
             'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-        when(() => mockStorage.read(key: 'auth_method'))
-            .thenAnswer((_) async => 'guest');
-        when(() => mockStorage.read(key: 'auth_public_key'))
-            .thenAnswer((_) async => 'pubkey123');
-        when(() => mockStorage.read(key: 'auth_private_key'))
-            .thenAnswer((_) async => privateKey);
+        when(
+          () => mockStorage.read(key: 'auth_method'),
+        ).thenAnswer((_) async => 'guest');
+        when(
+          () => mockStorage.read(key: 'auth_public_key'),
+        ).thenAnswer((_) async => 'pubkey123');
+        when(
+          () => mockStorage.read(key: 'auth_private_key'),
+        ).thenAnswer((_) async => privateKey);
 
         final result = await authRepository.checkStoredCredentials();
 
         expect(result, isNotNull);
         expect(result!.method, AuthMethod.guest);
-        verify(() => mockNostrClient.initialize(
-              relayUrl: 'wss://test.relay',
-              signer: any(named: 'signer'),
-            )).called(1);
+        verify(
+          () => mockNostrClient.initialize(
+            relayUrl: 'wss://test.relay',
+            signer: any(named: 'signer'),
+          ),
+        ).called(1);
         verify(() => mockNostrClient.connect()).called(1);
       });
     });
@@ -123,14 +139,18 @@ void main() {
 
         expect(result.method, AuthMethod.guest);
         expect(result.publicKey, isNotEmpty);
-        verify(() => mockStorage.write(
-              key: 'auth_method',
-              value: 'guest',
-            )).called(1);
-        verify(() => mockNostrClient.initialize(
-              relayUrl: 'wss://test.relay',
-              signer: any(named: 'signer'),
-            )).called(1);
+        verify(
+          () => mockStorage.write(
+            key: 'auth_method',
+            value: 'guest',
+          ),
+        ).called(1);
+        verify(
+          () => mockNostrClient.initialize(
+            relayUrl: 'wss://test.relay',
+            signer: any(named: 'signer'),
+          ),
+        ).called(1);
         verify(() => mockNostrClient.connect()).called(1);
       });
     });

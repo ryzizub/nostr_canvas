@@ -29,8 +29,7 @@ class GridToggleButton extends StatelessWidget {
                   Positioned.fill(
                     child: CustomPaint(
                       painter: _GridIconPainter(
-                        color:
-                            state.gridEnabled ? Colors.white : Colors.grey,
+                        color: state.gridEnabled ? Colors.white : Colors.grey,
                       ),
                     ),
                   ),

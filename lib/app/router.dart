@@ -13,8 +13,7 @@ GoRouter createAppRouter(AuthBloc authBloc) {
     initialLocation: '/login',
     refreshListenable: _AuthRefreshNotifier(authBloc),
     redirect: (context, state) {
-      final isAuthenticated =
-          authBloc.state.status == AuthStatus.authenticated;
+      final isAuthenticated = authBloc.state.status == AuthStatus.authenticated;
       final isOnLogin = state.matchedLocation == '/login';
 
       if (!isAuthenticated && !isOnLogin) {

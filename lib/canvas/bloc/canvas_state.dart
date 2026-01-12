@@ -53,8 +53,9 @@ class CanvasState extends Equatable {
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
       gridEnabled: gridEnabled ?? this.gridEnabled,
       inspectModeEnabled: inspectModeEnabled ?? this.inspectModeEnabled,
-      inspectedPixel:
-          inspectedPixel != null ? inspectedPixel() : this.inspectedPixel,
+      inspectedPixel: inspectedPixel != null
+          ? inspectedPixel()
+          : this.inspectedPixel,
     );
   }
 }

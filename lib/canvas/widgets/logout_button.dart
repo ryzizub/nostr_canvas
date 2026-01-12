@@ -18,62 +18,64 @@ class LogoutButton extends StatelessWidget {
   }
 
   void _showLogoutConfirmation(BuildContext context) {
-    unawaited(showDialog<void>(
-      context: context,
-      builder: (dialogContext) => Center(
-        child: Material(
-          color: Colors.transparent,
-          child: NesContainer(
-            width: 280,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                NesIcon(
-                  iconData: NesIcons.delete,
-                  size: const Size.square(32),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Logout',
-                  style: TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Are you sure you want to logout?',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[400],
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) => Center(
+          child: Material(
+            color: Colors.transparent,
+            child: NesContainer(
+              width: 280,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  NesIcon(
+                    iconData: NesIcons.delete,
+                    size: const Size.square(32),
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    NesButton(
-                      type: NesButtonType.normal,
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                      child: const Text('Cancel'),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Logout',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Are you sure you want to logout?',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[400],
                     ),
-                    const SizedBox(width: 8),
-                    NesButton(
-                      type: NesButtonType.error,
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop();
-                        context
-                            .read<AuthBloc>()
-                            .add(const AuthLogoutRequested());
-                      },
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                ),
-              ],
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      NesButton(
+                        type: NesButtonType.normal,
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 8),
+                      NesButton(
+                        type: NesButtonType.error,
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          context.read<AuthBloc>().add(
+                            const AuthLogoutRequested(),
+                          );
+                        },
+                        child: const Text('Logout'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 }

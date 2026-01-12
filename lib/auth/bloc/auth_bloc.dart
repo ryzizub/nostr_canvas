@@ -1,7 +1,8 @@
 import 'package:auth_repository/auth_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:nostr_client/nostr_client.dart' show InvalidNsecException, SignerException;
+import 'package:nostr_client/nostr_client.dart'
+    show InvalidNsecException, SignerException;
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -11,8 +12,8 @@ part 'auth_state.dart';
 /// Owns and manages [AuthState] based on [AuthRepository] operations.
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required AuthRepository authRepository})
-      : _authRepository = authRepository,
-        super(const AuthState()) {
+    : _authRepository = authRepository,
+      super(const AuthState()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthGuestRequested>(_onGuestRequested);
     on<AuthImportRequested>(_onImportRequested);
@@ -30,19 +31,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user = await _authRepository.checkStoredCredentials();
       if (user != null) {
-        emit(AuthState(
-          status: AuthStatus.authenticated,
-          method: user.method,
-          publicKey: user.publicKey,
-        ));
+        emit(
+          AuthState(
+            status: AuthStatus.authenticated,
+            method: user.method,
+            publicKey: user.publicKey,
+          ),
+        );
       } else {
         emit(const AuthState(status: AuthStatus.unauthenticated));
       }
     } on Object catch (e) {
-      emit(AuthState(
-        status: AuthStatus.error,
-        errorMessage: 'Failed to restore session: $e',
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.error,
+          errorMessage: 'Failed to restore session: $e',
+        ),
+      );
     }
   }
 
@@ -54,16 +59,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       final user = await _authRepository.loginAsGuest();
-      emit(AuthState(
-        status: AuthStatus.authenticated,
-        method: user.method,
-        publicKey: user.publicKey,
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.authenticated,
+          method: user.method,
+          publicKey: user.publicKey,
+        ),
+      );
     } on Object catch (e) {
-      emit(AuthState(
-        status: AuthStatus.error,
-        errorMessage: 'Failed to login: $e',
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.error,
+          errorMessage: 'Failed to login: $e',
+        ),
+      );
     }
   }
 
@@ -75,21 +84,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       final user = await _authRepository.loginWithNsec(event.nsec);
-      emit(AuthState(
-        status: AuthStatus.authenticated,
-        method: user.method,
-        publicKey: user.publicKey,
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.authenticated,
+          method: user.method,
+          publicKey: user.publicKey,
+        ),
+      );
     } on InvalidNsecException catch (e) {
-      emit(AuthState(
-        status: AuthStatus.error,
-        errorMessage: e.message,
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.error,
+          errorMessage: e.message,
+        ),
+      );
     } on Object catch (e) {
-      emit(AuthState(
-        status: AuthStatus.error,
-        errorMessage: 'Failed to import key: $e',
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.error,
+          errorMessage: 'Failed to import key: $e',
+        ),
+      );
     }
   }
 
@@ -101,21 +116,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     try {
       final user = await _authRepository.loginWithNip07();
-      emit(AuthState(
-        status: AuthStatus.authenticated,
-        method: user.method,
-        publicKey: user.publicKey,
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.authenticated,
+          method: user.method,
+          publicKey: user.publicKey,
+        ),
+      );
     } on SignerException catch (e) {
-      emit(AuthState(
-        status: AuthStatus.error,
-        errorMessage: e.message,
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.error,
+          errorMessage: e.message,
+        ),
+      );
     } on Object catch (e) {
-      emit(AuthState(
-        status: AuthStatus.error,
-        errorMessage: 'Failed to connect with extension: $e',
-      ));
+      emit(
+        AuthState(
+          status: AuthStatus.error,
+          errorMessage: 'Failed to connect with extension: $e',
+        ),
+      );
     }
   }
 

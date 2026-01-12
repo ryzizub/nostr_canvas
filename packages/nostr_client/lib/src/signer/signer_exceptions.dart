@@ -12,13 +12,13 @@ sealed class SignerException implements Exception {
 /// Thrown when NIP-07 browser extension is not installed.
 class Nip07NotAvailableException extends SignerException {
   const Nip07NotAvailableException()
-      : super('NIP-07 browser extension not installed');
+    : super('NIP-07 browser extension not installed');
 }
 
 /// Thrown when user denies NIP-07 signing request.
 class Nip07UserDeniedException extends SignerException {
   const Nip07UserDeniedException()
-      : super('User denied NIP-07 signing request');
+    : super('User denied NIP-07 signing request');
 }
 
 /// Thrown when NIP-07 request times out.

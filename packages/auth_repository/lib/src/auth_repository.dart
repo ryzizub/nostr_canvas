@@ -17,17 +17,18 @@ class AuthRepository {
     required String relayUrl,
     required int powDifficulty,
     FlutterSecureStorage? storage,
-  })  : _nostrClient = nostrClient,
-        _pixelRepository = pixelRepository,
-        _relayUrl = relayUrl,
-        _powDifficulty = powDifficulty,
-        _storage = storage ??
-            const FlutterSecureStorage(
-              webOptions: WebOptions(
-                dbName: 'nostr_place_auth',
-                publicKey: 'nostr_place_auth_key',
-              ),
-            );
+  }) : _nostrClient = nostrClient,
+       _pixelRepository = pixelRepository,
+       _relayUrl = relayUrl,
+       _powDifficulty = powDifficulty,
+       _storage =
+           storage ??
+           const FlutterSecureStorage(
+             webOptions: WebOptions(
+               dbName: 'nostr_place_auth',
+               publicKey: 'nostr_place_auth_key',
+             ),
+           );
 
   final NostrClient _nostrClient;
   final PixelRepository _pixelRepository;

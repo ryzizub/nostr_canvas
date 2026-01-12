@@ -93,8 +93,11 @@ void main() {
         build: () => AuthBloc(authRepository: mockAuthRepository),
         act: (bloc) => bloc.add(const AuthGuestRequested()),
         expect: () => [
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.authenticating),
+          isA<AuthState>().having(
+            (s) => s.status,
+            'status',
+            AuthStatus.authenticating,
+          ),
           const AuthState(
             status: AuthStatus.authenticated,
             method: AuthMethod.guest,
@@ -113,8 +116,11 @@ void main() {
         build: () => AuthBloc(authRepository: mockAuthRepository),
         act: (bloc) => bloc.add(const AuthGuestRequested()),
         expect: () => [
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.authenticating),
+          isA<AuthState>().having(
+            (s) => s.status,
+            'status',
+            AuthStatus.authenticating,
+          ),
           isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.error)
               .having(
@@ -130,8 +136,7 @@ void main() {
       blocTest<AuthBloc, AuthState>(
         'emits authenticating then authenticated on valid nsec',
         setUp: () {
-          when(() => mockAuthRepository.loginWithNsec('nsec1valid'))
-              .thenAnswer(
+          when(() => mockAuthRepository.loginWithNsec('nsec1valid')).thenAnswer(
             (_) async => const AuthUser(
               publicKey: 'importedpubkey',
               method: AuthMethod.imported,
@@ -141,8 +146,11 @@ void main() {
         build: () => AuthBloc(authRepository: mockAuthRepository),
         act: (bloc) => bloc.add(const AuthImportRequested('nsec1valid')),
         expect: () => [
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.authenticating),
+          isA<AuthState>().having(
+            (s) => s.status,
+            'status',
+            AuthStatus.authenticating,
+          ),
           const AuthState(
             status: AuthStatus.authenticated,
             method: AuthMethod.imported,
@@ -161,8 +169,11 @@ void main() {
         build: () => AuthBloc(authRepository: mockAuthRepository),
         act: (bloc) => bloc.add(const AuthImportRequested('invalid')),
         expect: () => [
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.authenticating),
+          isA<AuthState>().having(
+            (s) => s.status,
+            'status',
+            AuthStatus.authenticating,
+          ),
           isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.error)
               .having(
@@ -183,8 +194,11 @@ void main() {
         build: () => AuthBloc(authRepository: mockAuthRepository),
         act: (bloc) => bloc.add(const AuthImportRequested('nsec1test')),
         expect: () => [
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.authenticating),
+          isA<AuthState>().having(
+            (s) => s.status,
+            'status',
+            AuthStatus.authenticating,
+          ),
           isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.error)
               .having(
@@ -210,8 +224,11 @@ void main() {
         build: () => AuthBloc(authRepository: mockAuthRepository),
         act: (bloc) => bloc.add(const AuthNip07Requested()),
         expect: () => [
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.authenticating),
+          isA<AuthState>().having(
+            (s) => s.status,
+            'status',
+            AuthStatus.authenticating,
+          ),
           const AuthState(
             status: AuthStatus.authenticated,
             method: AuthMethod.nip07,
@@ -230,8 +247,11 @@ void main() {
         build: () => AuthBloc(authRepository: mockAuthRepository),
         act: (bloc) => bloc.add(const AuthNip07Requested()),
         expect: () => [
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.authenticating),
+          isA<AuthState>().having(
+            (s) => s.status,
+            'status',
+            AuthStatus.authenticating,
+          ),
           isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.error)
               .having(
@@ -252,8 +272,11 @@ void main() {
         build: () => AuthBloc(authRepository: mockAuthRepository),
         act: (bloc) => bloc.add(const AuthNip07Requested()),
         expect: () => [
-          isA<AuthState>()
-              .having((s) => s.status, 'status', AuthStatus.authenticating),
+          isA<AuthState>().having(
+            (s) => s.status,
+            'status',
+            AuthStatus.authenticating,
+          ),
           isA<AuthState>()
               .having((s) => s.status, 'status', AuthStatus.error)
               .having(

@@ -33,8 +33,7 @@ class LoginView extends StatelessWidget {
               AuthStatus.initial => const NesHourglassLoadingIndicator(),
               AuthStatus.authenticating => const _AuthenticatingIndicator(),
               AuthStatus.unauthenticated ||
-              AuthStatus.error =>
-                const LoginOptions(),
+              AuthStatus.error => const LoginOptions(),
               AuthStatus.authenticated => const SizedBox.shrink(),
             },
           );
@@ -44,51 +43,53 @@ class LoginView extends StatelessWidget {
   }
 
   void _showErrorDialog(BuildContext context, String message) {
-    unawaited(showDialog<void>(
-      context: context,
-      builder: (dialogContext) => Center(
-        child: Material(
-          color: Colors.transparent,
-          child: NesContainer(
-            width: 280,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                NesIcon(
-                  iconData: NesIcons.close,
-                  size: const Size.square(32),
-                  primaryColor: Colors.red,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Error',
-                  style: TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  message,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[400],
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) => Center(
+          child: Material(
+            color: Colors.transparent,
+            child: NesContainer(
+              width: 280,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  NesIcon(
+                    iconData: NesIcons.close,
+                    size: const Size.square(32),
+                    primaryColor: Colors.red,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                NesButton(
-                  type: NesButtonType.error,
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop();
-                    context.read<AuthBloc>().add(const AuthErrorCleared());
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Error',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    message,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[400],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  NesButton(
+                    type: NesButtonType.error,
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      context.read<AuthBloc>().add(const AuthErrorCleared());
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
 

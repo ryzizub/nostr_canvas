@@ -23,14 +23,18 @@ void main() {
 
     setUp(() {
       mockStorage = MockFlutterSecureStorage();
-      when(() => mockStorage.read(key: any(named: 'key')))
-          .thenAnswer((_) async => null);
-      when(() => mockStorage.write(
-            key: any(named: 'key'),
-            value: any(named: 'value'),
-          )).thenAnswer((_) async {});
-      when(() => mockStorage.delete(key: any(named: 'key')))
-          .thenAnswer((_) async {});
+      when(
+        () => mockStorage.read(key: any(named: 'key')),
+      ).thenAnswer((_) async => null);
+      when(
+        () => mockStorage.write(
+          key: any(named: 'key'),
+          value: any(named: 'value'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => mockStorage.delete(key: any(named: 'key')),
+      ).thenAnswer((_) async {});
 
       mockNostrClient = MockNostrClient();
       when(() => mockNostrClient.isInitialized).thenReturn(false);
