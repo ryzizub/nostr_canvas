@@ -43,7 +43,7 @@ void main() {
     });
 
     group('CanvasLoadRequested', () {
-      const canvasData = CanvasData(width: 1000, height: 1000);
+      const canvasData = CanvasData(width: 250, height: 250);
 
       blocTest<CanvasBloc, CanvasState>(
         'emits loading then ready status when load succeeds',
@@ -83,7 +83,7 @@ void main() {
     });
 
     group('ZoomChanged', () {
-      const canvasData = CanvasData(width: 1000, height: 1000);
+      const canvasData = CanvasData(width: 250, height: 250);
 
       blocTest<CanvasBloc, CanvasState>(
         'does nothing when status is not ready',
@@ -131,7 +131,7 @@ void main() {
     });
 
     group('CameraPositionChanged', () {
-      const canvasData = CanvasData(width: 1000, height: 1000);
+      const canvasData = CanvasData(width: 250, height: 250);
 
       blocTest<CanvasBloc, CanvasState>(
         'does nothing when status is not ready',

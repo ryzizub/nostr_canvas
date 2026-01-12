@@ -1,16 +1,16 @@
 /// Constants for the canvas game.
 abstract final class Constants {
   /// Canvas width in pixels.
-  static const int canvasWidth = 1000;
+  static const int canvasWidth = 250;
 
   /// Canvas height in pixels.
-  static const int canvasHeight = 1000;
+  static const int canvasHeight = 250;
 
   /// Nostr relay URL.
   static const String relayUrl = 'wss://relay.ryzizub.com';
 
   /// PoW difficulty for pixel placement.
-  static const int powDifficulty = 16;
+  static const int powDifficulty = 20;
 
   /// Size of each pixel in world units.
   /// All grid coordinates are multiplied by this to get world position.

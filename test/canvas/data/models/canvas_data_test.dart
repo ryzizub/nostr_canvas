@@ -4,8 +4,8 @@ import 'package:pixel_repository/pixel_repository.dart';
 
 void main() {
   group('CanvasData', () {
-    const canvasWidth = 1000;
-    const canvasHeight = 1000;
+    const canvasWidth = 250;
+    const canvasHeight = 250;
 
     test('can be instantiated with empty pixels', () {
       const canvasData = CanvasData(
