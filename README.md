@@ -1,7 +1,7 @@
 # Nostr Canvas
 
 <p align="center">
-  <img src="assets/launcher-icons/icon.jpeg" alt="Nostr Canvas Logo" width="200"/>
+  <img src="logo.jpeg" alt="Nostr Canvas Logo" width="200"/>
 </p>
 
 <p align="center">
