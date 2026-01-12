@@ -3,6 +3,7 @@ import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nes_ui/nes_ui.dart';
+import 'package:nostr_canvas/about/about.dart';
 import 'package:nostr_canvas/auth/auth.dart';
 import 'package:nostr_canvas/auth/widgets/import_key_dialog.dart';
 import 'package:nostr_client/nostr_client.dart' show Nip07Signer;
@@ -27,6 +28,8 @@ class LoginOptions extends StatelessWidget {
           _ImportKeyButton(),
           SizedBox(height: 12),
           _Nip07Button(),
+          SizedBox(height: 16),
+          InfoButton(),
         ],
       ),
     );

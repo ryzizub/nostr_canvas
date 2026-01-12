@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nes_ui/nes_ui.dart';
+import 'package:nostr_canvas/about/about.dart';
 import 'package:nostr_canvas/canvas/widgets/color_picker_button.dart';
 import 'package:nostr_canvas/canvas/widgets/grid_toggle_button.dart';
 import 'package:nostr_canvas/canvas/widgets/inspect_mode_button.dart';
@@ -23,6 +24,8 @@ class CanvasToolbar extends StatelessWidget {
           GridToggleButton(),
           SizedBox(height: 8),
           RelayStatusIndicator(),
+          SizedBox(height: 8),
+          InfoButton(),
           SizedBox(height: 8),
           LogoutButton(),
         ],

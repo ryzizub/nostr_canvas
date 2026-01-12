@@ -32,6 +32,7 @@ dependencies:
   nostr: ^1.5.0
   nostr_client:
   pixel_repository:
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   bloc_test: ^10.0.0
@@ -44,3 +45,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/images/
