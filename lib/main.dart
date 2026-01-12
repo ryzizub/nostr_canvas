@@ -4,37 +4,60 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:nostr_client/nostr_client.dart';
 import 'package:nostr_place/app/app.dart';
 import 'package:nostr_place/app/app_bloc_observer.dart';
+import 'package:nostr_place/app/router.dart';
+import 'package:nostr_place/auth/auth.dart';
 import 'package:nostr_place/core/constants.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // HydratedBloc for color selection persistence
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: HydratedStorageDirectory.web,
   );
 
   Bloc.observer = const AppBlocObserver();
 
-  // Initialize Nostr client
-  final nostrClient = NostrClient(
-    relayUrl: 'wss://relay.ryzizub.com',
-    keychain: Keychain.generate(),
-    powDifficulty: 16,
-  );
+  // Create shared NostrClient (uninitialized)
+  final nostrClient = NostrClient();
 
-  await nostrClient.connect();
-
+  // Create pixel repository with shared client
   final pixelRepository = PixelRepository(
-    nostrClient: nostrClient,
     canvasWidth: Constants.canvasWidth,
     canvasHeight: Constants.canvasHeight,
+    nostrClient: nostrClient,
   );
 
+  // Create auth repository with shared client
+  final authRepository = AuthRepository(
+    nostrClient: nostrClient,
+    pixelRepository: pixelRepository,
+    relayUrl: Constants.relayUrl,
+    powDifficulty: Constants.powDifficulty,
+  );
+
+  // Create AuthBloc and check for stored credentials
+  final authBloc = AuthBloc(authRepository: authRepository)
+    ..add(const AuthCheckRequested());
+
+  // Wait for initial auth check to complete
+  await authBloc.stream.firstWhere(
+    (state) => state.status != AuthStatus.initial,
+  );
+
+  final router = createAppRouter(authBloc);
+
   runApp(
-    RepositoryProvider<PixelRepository>.value(
-      value: pixelRepository,
-      child: const App(),
+    MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<AuthRepository>.value(value: authRepository),
+        RepositoryProvider<PixelRepository>.value(value: pixelRepository),
+      ],
+      child: BlocProvider<AuthBloc>.value(
+        value: authBloc,
+        child: App(router: router),
+      ),
     ),
   );
 }

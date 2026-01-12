@@ -8,6 +8,8 @@ import 'package:nostr_place/pow/pow.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 /// Entry point page for the canvas feature.
+///
+/// Expects PixelRepository to be provided by a parent widget.
 class CanvasPage extends StatelessWidget {
   const CanvasPage({super.key});
 

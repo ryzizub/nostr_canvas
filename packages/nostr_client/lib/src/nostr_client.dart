@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:nostr/nostr.dart';
 import 'package:nostr_client/src/connection/connection_state.dart';
 import 'package:nostr_client/src/pow/pow_progress.dart';
+import 'package:nostr_client/src/signer/nostr_signer.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// Web platform detection (compile-time constant).
@@ -154,22 +155,80 @@ void _mineProofOfWorkWithProgress(_PowIsolateParams params) {
 ///
 /// Handles WebSocket connections to relays, event publishing,
 /// and event subscriptions.
+///
+/// Create with empty constructor, then call [initialize] to configure.
 class NostrClient {
-  /// Creates a NostrClient with the given relay URL and keychain.
-  NostrClient({
-    required this.relayUrl,
-    required this.keychain,
-    this.powDifficulty = 0,
-  });
+  /// Creates an uninitialized NostrClient.
+  ///
+  /// Call [initialize] before using connection methods.
+  NostrClient();
+
+  String? _relayUrl;
+  NostrSigner? _signer;
+  int _powDifficulty = 0;
+  bool _isInitialized = false;
+
+  /// Whether the client is initialized and ready to use.
+  bool get isInitialized => _isInitialized;
 
   /// The relay WebSocket URL.
-  final String relayUrl;
-
-  /// The keychain for signing events.
-  final Keychain keychain;
+  ///
+  /// Throws [StateError] if not initialized.
+  String get relayUrl {
+    _assertInitialized();
+    return _relayUrl!;
+  }
 
   /// Proof of work difficulty (0 = disabled).
-  final int powDifficulty;
+  int get powDifficulty => _powDifficulty;
+
+  /// The public key for this client.
+  ///
+  /// Throws [StateError] if not initialized.
+  String get publicKey {
+    _assertInitialized();
+    return _signer!.publicKey;
+  }
+
+  /// Initialize the client with relay URL and signer.
+  ///
+  /// Throws [StateError] if already initialized.
+  /// Call [deinitialize] first to reinitialize.
+  Future<void> initialize({
+    required String relayUrl,
+    required NostrSigner signer,
+    int powDifficulty = 0,
+  }) async {
+    if (_isInitialized) {
+      throw StateError(
+        'Client already initialized. Call deinitialize() first.',
+      );
+    }
+    _relayUrl = relayUrl;
+    _signer = signer;
+    _powDifficulty = powDifficulty;
+    _isInitialized = true;
+  }
+
+  /// Deinitialize the client.
+  ///
+  /// Disconnects from relay and clears configuration.
+  /// Safe to call even if not initialized.
+  Future<void> deinitialize() async {
+    if (_isInitialized) {
+      await disconnect();
+    }
+    _relayUrl = null;
+    _signer = null;
+    _powDifficulty = 0;
+    _isInitialized = false;
+  }
+
+  void _assertInitialized() {
+    if (!_isInitialized) {
+      throw StateError('Client not initialized. Call initialize() first.');
+    }
+  }
 
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _subscription;
@@ -195,16 +254,17 @@ class NostrClient {
   /// Stream of incoming events from the relay.
   Stream<Event> get events => _eventController.stream;
 
-  /// The public key for this client.
-  String get publicKey => keychain.public;
-
   void _updateState(ConnectionState state) {
     _currentState = state;
     _connectionStateController.add(state);
   }
 
   /// Connect to the relay.
+  ///
+  /// Throws [StateError] if not initialized.
   Future<void> connect() async {
+    _assertInitialized();
+
     if (_currentState == ConnectionState.connected ||
         _currentState == ConnectionState.connecting) {
       return;
@@ -213,7 +273,7 @@ class NostrClient {
     _updateState(ConnectionState.connecting);
 
     try {
-      _channel = WebSocketChannel.connect(Uri.parse(relayUrl));
+      _channel = WebSocketChannel.connect(Uri.parse(_relayUrl!));
       await _channel!.ready;
 
       _subscription = _channel!.stream.listen(
@@ -274,11 +334,15 @@ class NostrClient {
   /// Creates and signs an event with the given kind, tags, and content.
   /// If [powDifficulty] > 0, mines proof of work before publishing.
   /// On native platforms, PoW runs in a separate isolate to avoid UI jank.
+  ///
+  /// Throws [StateError] if not initialized or not connected.
   Future<void> publish({
     required int kind,
     required List<List<String>> tags,
     required String content,
   }) async {
+    _assertInitialized();
+
     if (_currentState != ConnectionState.connected || _channel == null) {
       throw StateError('Not connected to relay');
     }
@@ -287,13 +351,13 @@ class NostrClient {
 
     // Mine PoW if difficulty is set
     int? createdAt;
-    if (powDifficulty > 0) {
+    if (_powDifficulty > 0) {
       final params = _PowParams(
-        pubkey: keychain.public,
+        pubkey: _signer!.publicKey,
         kind: kind,
         tags: eventTags,
         content: content,
-        targetDifficulty: powDifficulty,
+        targetDifficulty: _powDifficulty,
       );
 
       _PowResult powResult;
@@ -308,16 +372,15 @@ class NostrClient {
       eventTags.add([
         'nonce',
         powResult.nonce,
-        powDifficulty.toString(), // Must match target used during mining
+        _powDifficulty.toString(), // Must match target used during mining
       ]);
       createdAt = powResult.createdAt;
     }
 
-    final event = Event.from(
+    final event = await _signer!.signEvent(
       kind: kind,
       tags: eventTags,
       content: content,
-      privkey: keychain.private,
       createdAt: createdAt,
     );
 
@@ -329,11 +392,18 @@ class NostrClient {
   ///
   /// Returns a stream of [PowProgress] updates during mining and sending.
   /// If [powDifficulty] > 0, emits mining progress before sending.
+  ///
+  /// Yields [PowError] if not initialized or not connected.
   Stream<PowProgress> publishWithProgress({
     required int kind,
     required List<List<String>> tags,
     required String content,
   }) async* {
+    if (!_isInitialized) {
+      yield const PowError(message: 'Client not initialized');
+      return;
+    }
+
     if (_currentState != ConnectionState.connected || _channel == null) {
       yield const PowError(message: 'Not connected to relay');
       return;
@@ -343,13 +413,13 @@ class NostrClient {
     int? createdAt;
     _PowResult? powResult;
 
-    if (powDifficulty > 0) {
+    if (_powDifficulty > 0) {
       final params = _PowParams(
-        pubkey: keychain.public,
+        pubkey: _signer!.publicKey,
         kind: kind,
         tags: eventTags,
         content: content,
-        targetDifficulty: powDifficulty,
+        targetDifficulty: _powDifficulty,
       );
 
       if (_isWeb) {
@@ -386,7 +456,7 @@ class NostrClient {
       eventTags.add([
         'nonce',
         powResult.nonce,
-        powDifficulty.toString(),
+        _powDifficulty.toString(),
       ]);
       createdAt = powResult.createdAt;
     }
@@ -395,11 +465,10 @@ class NostrClient {
     yield const PowSending();
 
     try {
-      final event = Event.from(
+      final event = await _signer!.signEvent(
         kind: kind,
         tags: eventTags,
         content: content,
-        privkey: keychain.private,
         createdAt: createdAt,
       );
 
@@ -514,7 +583,11 @@ class NostrClient {
   /// Subscribe to events matching the given filters.
   ///
   /// Returns a subscription ID that can be used to unsubscribe.
+  ///
+  /// Throws [StateError] if not initialized or not connected.
   String subscribe(List<Filter> filters) {
+    _assertInitialized();
+
     if (_currentState != ConnectionState.connected || _channel == null) {
       throw StateError('Not connected to relay');
     }

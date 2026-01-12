@@ -1,0 +1,22 @@
+name: auth_repository
+description: Authentication repository for Nostr Place
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+resolution: workspace
+
+dependencies:
+  equatable: ^2.0.7
+  flutter:
+    sdk: flutter
+  flutter_secure_storage: ^9.2.4
+  nostr: ^1.5.0
+  nostr_client:
+  pixel_repository:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4

@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:async' show StreamController, StreamSubscription, unawaited;
 import 'dart:ui';
 
 import 'package:nostr_client/nostr_client.dart';
@@ -13,11 +13,13 @@ const int pixelEventKind = 9549;
 ///
 /// Publishes pixels as Nostr events and subscribes to updates from the relay.
 class PixelRepository {
-  /// Creates a PixelRepository with the given client.
+  /// Creates a PixelRepository with a shared [NostrClient].
+  ///
+  /// The client is shared and its lifecycle is managed externally.
   PixelRepository({
-    required NostrClient nostrClient,
     required this.canvasWidth,
     required this.canvasHeight,
+    required NostrClient nostrClient,
   }) : _nostrClient = nostrClient;
 
   final NostrClient _nostrClient;
@@ -28,13 +30,20 @@ class PixelRepository {
   /// Canvas height.
   final int canvasHeight;
 
-  late CanvasData _canvasData;
+  CanvasData? _canvasData;
   String? _subscriptionId;
+  StreamSubscription<Event>? _eventSubscription;
 
   final _canvasUpdatesController = StreamController<CanvasData>.broadcast();
 
   /// Stream of canvas updates (emitted after each pixel change).
   Stream<CanvasData> get canvasUpdates => _canvasUpdatesController.stream;
+
+  /// Whether the client is initialized and ready for operations.
+  bool get hasClient => _nostrClient.isInitialized;
+
+  /// The Nostr client.
+  NostrClient get client => _nostrClient;
 
   /// Connection state stream from the underlying client.
   Stream<ConnectionState> get connectionState => _nostrClient.connectionState;
@@ -42,7 +51,33 @@ class PixelRepository {
   /// Current connection state.
   ConnectionState get currentConnectionState => _nostrClient.currentState;
 
+  /// Clear canvas data and reset state.
+  ///
+  /// Called on logout to clear all data. Does not close stream controllers.
+  /// Does NOT clear the client reference (client lifecycle is managed
+  /// externally).
+  void clear() {
+    // Unsubscribe from relay if connected
+    if (_subscriptionId != null && _nostrClient.isInitialized) {
+      _nostrClient.unsubscribe(_subscriptionId!);
+      _subscriptionId = null;
+    }
+
+    // Cancel event listener
+    if (_eventSubscription != null) {
+      unawaited(_eventSubscription!.cancel());
+      _eventSubscription = null;
+    }
+
+    // Reset canvas data
+    _canvasData = null;
+  }
+
   Future<CanvasData> loadCanvas() async {
+    if (!_nostrClient.isInitialized) {
+      throw StateError('NostrClient not initialized.');
+    }
+
     _canvasData = CanvasData(width: canvasWidth, height: canvasHeight);
 
     // Subscribe to pixel events
@@ -51,12 +86,16 @@ class PixelRepository {
     ]);
 
     // Listen to incoming events
-    _nostrClient.events.listen(_handleEvent);
+    _eventSubscription = _nostrClient.events.listen(_handleEvent);
 
-    return _canvasData;
+    return _canvasData!;
   }
 
   Future<void> placePixel(Position position, Color color) async {
+    if (!_nostrClient.isInitialized) {
+      throw StateError('NostrClient not initialized.');
+    }
+
     // Validate bounds
     if (position.x < 0 ||
         position.x >= canvasWidth ||
@@ -85,6 +124,12 @@ class PixelRepository {
   ///
   /// Returns a stream of [PowProgress] updates during mining and sending.
   Stream<PowProgress> placePixelWithProgress(Position position, Color color) {
+    if (!_nostrClient.isInitialized) {
+      return Stream.value(
+        const PowError(message: 'Not connected. Please log in first.'),
+      );
+    }
+
     // Validate bounds
     if (position.x < 0 ||
         position.x >= canvasWidth ||
@@ -113,9 +158,10 @@ class PixelRepository {
 
   /// Dispose resources.
   Future<void> dispose() async {
-    if (_subscriptionId != null) {
+    if (_subscriptionId != null && _nostrClient.isInitialized) {
       _nostrClient.unsubscribe(_subscriptionId!);
     }
+    await _eventSubscription?.cancel();
     await _canvasUpdatesController.close();
   }
 
@@ -124,16 +170,14 @@ class PixelRepository {
 
     try {
       final pixel = _parsePixelEvent(event);
-      if (pixel != null) {
-        _canvasData = _canvasData.placePixel(pixel);
-        _canvasUpdatesController.add(_canvasData);
+      if (pixel != null && _canvasData != null) {
+        _canvasData = _canvasData!.placePixel(pixel);
+        _canvasUpdatesController.add(_canvasData!);
       }
     } on Object {
       // Skip malformed events
     }
   }
-
-  /// Assist
 
   Pixel? _parsePixelEvent(Event event) {
     int? x;

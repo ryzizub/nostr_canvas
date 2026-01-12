@@ -12,4 +12,5 @@ dependencies:
   equatable: ^2.0.7
   meta: ^1.16.0
   nostr: ^1.5.0
+  web: ^1.0.0
   web_socket_channel: ^3.0.0
