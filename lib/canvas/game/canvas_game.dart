@@ -27,6 +27,7 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
   CameraComponent? _cameraComponent;
 
   Vector2? _panStartPosition;
+  Vector2? _panStartScreenPosition;
   bool _isPanning = false;
 
   @override
@@ -85,6 +86,10 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
   void onPanStart(DragStartInfo info) {
     final pos = info.raw.globalPosition;
     _panStartPosition = Vector2(pos.dx, pos.dy);
+    _panStartScreenPosition = Vector2(
+      info.raw.localPosition.dx,
+      info.raw.localPosition.dy,
+    );
     _isPanning = false;
   }
 
@@ -118,8 +123,41 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
 
   @override
   void onPanEnd(DragEndInfo info) {
+    // If we weren't panning, treat this as a tap
+    if (!_isPanning && _panStartScreenPosition != null) {
+      _handleTap(_panStartScreenPosition!);
+    }
     _panStartPosition = null;
+    _panStartScreenPosition = null;
     _isPanning = false;
+  }
+
+  void _handleTap(Vector2 screenPosition) {
+    final gridPosition = screenToGridPosition(screenPosition);
+
+    // Validate tap is within canvas bounds
+    final state = canvasBloc.state;
+    if (state.status != CanvasStatus.ready) return;
+
+    final canvasData = state.canvasData!;
+    if (gridPosition.x < 0 ||
+        gridPosition.x >= canvasData.width ||
+        gridPosition.y < 0 ||
+        gridPosition.y >= canvasData.height) {
+      return;
+    }
+
+    // Add click highlight
+    final pixelGrid = world.descendants().whereType<PixelGridComponent>().first;
+    unawaited(pixelGrid.addClickHighlight(gridPosition.x, gridPosition.y));
+
+    // Place pixel via PowBloc
+    powBloc.add(
+      PowPlacePixelRequested(
+        position: gridPosition,
+        color: colorSelectionBloc.state.selectedColor,
+      ),
+    );
   }
 
   @override

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
-import 'package:flame/events.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:nostr_place/canvas/bloc/canvas_bloc.dart';
 import 'package:nostr_place/canvas/game/canvas_game.dart';
@@ -9,14 +8,12 @@ import 'package:nostr_place/canvas/game/components/click_highlight_component.dar
 import 'package:nostr_place/canvas/game/components/grid_lines_component.dart';
 import 'package:nostr_place/canvas/game/components/pixel_component.dart';
 import 'package:nostr_place/core/constants.dart';
-import 'package:nostr_place/pow/pow.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 /// Renders the entire pixel grid and handles user interactions.
 class PixelGridComponent extends PositionComponent
     with
         FlameBlocListenable<CanvasBloc, CanvasState>,
-        TapCallbacks,
         HasGameReference<CanvasGame> {
   PixelGridComponent()
     : super(
@@ -110,23 +107,9 @@ class PixelGridComponent extends PositionComponent
     }
   }
 
-  @override
-  Future<void> onTapDown(TapDownEvent event) async {
-    // event.localPosition is already in component's local coordinates
-    final gridX = (event.localPosition.x / Constants.tileSize).floor();
-    final gridY = (event.localPosition.y / Constants.tileSize).floor();
-
-    // Add visual feedback for the click
+  /// Adds a click highlight at the given grid position.
+  Future<void> addClickHighlight(int gridX, int gridY) async {
     final highlight = ClickHighlightComponent(x: gridX, y: gridY);
-
     await add(highlight);
-
-    // Place pixel with selected color via PowBloc
-    game.powBloc.add(
-      PowPlacePixelRequested(
-        position: Position(gridX, gridY),
-        color: game.colorSelectionBloc.state.selectedColor,
-      ),
-    );
   }
 }
