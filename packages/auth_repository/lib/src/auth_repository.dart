@@ -59,10 +59,9 @@ class AuthRepository {
       return null;
     }
 
-    // Don't restore NIP-07 sessions (requires re-auth with extension)
+    // Try to restore NIP-07 session automatically
     if (credentials.method == AuthMethod.nip07.name) {
-      await _clearCredentials();
-      return null;
+      return _tryRestoreNip07Session(credentials.publicKey);
     }
 
     // Need private key to restore session
@@ -82,6 +81,46 @@ class AuthRepository {
       publicKey: credentials.publicKey,
       method: method,
     );
+  }
+
+  /// Try to restore a NIP-07 session by re-authenticating with the extension.
+  ///
+  /// Returns [AuthUser] if extension is available and user approves,
+  /// null otherwise (clears credentials on failure).
+  Future<AuthUser?> _tryRestoreNip07Session(String storedPublicKey) async {
+    try {
+      // Check if NIP-07 extension is available
+      if (!Nip07Signer.isAvailable) {
+        await _clearCredentials();
+        return null;
+      }
+
+      // Try to get public key from extension (this may prompt user)
+      final nip07Signer = await Nip07Signer.create();
+
+      // Verify the public key matches the stored one
+      if (nip07Signer.publicKey != storedPublicKey) {
+        // Different account - clear stored credentials
+        await _clearCredentials();
+        return null;
+      }
+
+      _signer = nip07Signer;
+      await _connectClient();
+
+      return AuthUser(
+        publicKey: nip07Signer.publicKey,
+        method: AuthMethod.nip07,
+      );
+    } on SignerException {
+      // Extension not available or user denied - clear credentials
+      await _clearCredentials();
+      return null;
+    } on Object {
+      // Any other error - clear credentials
+      await _clearCredentials();
+      return null;
+    }
   }
 
   /// Login as guest (generate new random key).

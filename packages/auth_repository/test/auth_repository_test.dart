@@ -11,11 +11,17 @@ class MockNostrClient extends Mock implements NostrClient {}
 
 class MockPixelRepository extends Mock implements PixelRepository {}
 
+class FakeNostrSigner extends Fake implements NostrSigner {}
+
 void main() {
   late MockFlutterSecureStorage mockStorage;
   late MockNostrClient mockNostrClient;
   late MockPixelRepository mockPixelRepository;
   late AuthRepository authRepository;
+
+  setUpAll(() {
+    registerFallbackValue(FakeNostrSigner());
+  });
 
   setUp(() {
     mockStorage = MockFlutterSecureStorage();
@@ -72,21 +78,26 @@ void main() {
         expect(result, isNull);
       });
 
-      test('returns null and clears credentials for NIP-07 method', () async {
-        when(
-          () => mockStorage.read(key: 'auth_method'),
-        ).thenAnswer((_) async => 'nip07');
-        when(
-          () => mockStorage.read(key: 'auth_public_key'),
-        ).thenAnswer((_) async => 'pubkey123');
+      test(
+        'returns null and clears NIP-07 credentials when extension unavailable',
+        () async {
+          // NIP-07 sessions require the browser extension to be available.
+          // In tests, Nip07Signer.isAvailable is false, so it clears creds.
+          when(
+            () => mockStorage.read(key: 'auth_method'),
+          ).thenAnswer((_) async => 'nip07');
+          when(
+            () => mockStorage.read(key: 'auth_public_key'),
+          ).thenAnswer((_) async => 'pubkey123');
 
-        final result = await authRepository.checkStoredCredentials();
+          final result = await authRepository.checkStoredCredentials();
 
-        expect(result, isNull);
-        verify(() => mockStorage.delete(key: 'auth_method')).called(1);
-        verify(() => mockStorage.delete(key: 'auth_public_key')).called(1);
-        verify(() => mockStorage.delete(key: 'auth_private_key')).called(1);
-      });
+          expect(result, isNull);
+          verify(() => mockStorage.delete(key: 'auth_method')).called(1);
+          verify(() => mockStorage.delete(key: 'auth_public_key')).called(1);
+          verify(() => mockStorage.delete(key: 'auth_private_key')).called(1);
+        },
+      );
 
       test('returns null when private key is missing', () async {
         when(
