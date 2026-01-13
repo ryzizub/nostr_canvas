@@ -10,7 +10,7 @@ abstract final class Constants {
   static const String relayUrl = 'wss://relay.ryzizub.com';
 
   /// PoW difficulty for pixel placement.
-  static const int powDifficulty = 20;
+  static const int powDifficulty = 18;
 
   /// Size of each pixel in world units.
   /// All grid coordinates are multiplied by this to get world position.
