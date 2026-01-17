@@ -55,7 +55,9 @@ void main() {
               const RelayPoolState(
                 connectedCount: 1,
                 totalCount: 1,
-                relayStates: {'wss://relay.example.com': ConnectionState.connected},
+                relayStates: {
+                  'wss://relay.example.com': ConnectionState.connected,
+                },
                 overallState: ConnectionState.connected,
               ),
             ),
@@ -84,13 +86,17 @@ void main() {
               const RelayPoolState(
                 connectedCount: 0,
                 totalCount: 1,
-                relayStates: {'wss://relay.example.com': ConnectionState.connecting},
+                relayStates: {
+                  'wss://relay.example.com': ConnectionState.connecting,
+                },
                 overallState: ConnectionState.connecting,
               ),
               const RelayPoolState(
                 connectedCount: 1,
                 totalCount: 1,
-                relayStates: {'wss://relay.example.com': ConnectionState.connected},
+                relayStates: {
+                  'wss://relay.example.com': ConnectionState.connected,
+                },
                 overallState: ConnectionState.connected,
               ),
             ]),
@@ -104,7 +110,9 @@ void main() {
         expect: () => [
           const RelayState(
             totalCount: 1,
-            relayStates: {'wss://relay.example.com': ConnectionState.connecting},
+            relayStates: {
+              'wss://relay.example.com': ConnectionState.connecting,
+            },
             overallState: ConnectionState.connecting,
           ),
           const RelayState(

@@ -63,8 +63,8 @@ class RelayPool {
 
   /// Per-relay connection states.
   Map<String, ConnectionState> get relayStates => Map.fromEntries(
-        _clients.entries.map((e) => MapEntry(e.key, e.value.currentState)),
-      );
+    _clients.entries.map((e) => MapEntry(e.key, e.value.currentState)),
+  );
 
   /// Current pool state snapshot.
   RelayPoolState get currentState => _computePoolState();
@@ -324,8 +324,9 @@ class RelayPool {
 
   RelayPoolState _computePoolState() {
     final states = relayStates;
-    final connected =
-        states.values.where((s) => s == ConnectionState.connected).length;
+    final connected = states.values
+        .where((s) => s == ConnectionState.connected)
+        .length;
     final total = states.length;
 
     // Determine overall state

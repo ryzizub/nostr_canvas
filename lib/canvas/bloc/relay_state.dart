@@ -25,11 +25,11 @@ class RelayState extends Equatable {
 
   @override
   List<Object?> get props => [
-        connectedCount,
-        totalCount,
-        relayStates,
-        overallState,
-      ];
+    connectedCount,
+    totalCount,
+    relayStates,
+    overallState,
+  ];
 
   RelayState copyWith({
     int? connectedCount,

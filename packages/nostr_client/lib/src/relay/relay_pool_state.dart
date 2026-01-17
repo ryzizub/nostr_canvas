@@ -13,11 +13,11 @@ class RelayPoolState extends Equatable {
 
   /// Creates an empty/initial state.
   factory RelayPoolState.empty() => const RelayPoolState(
-        connectedCount: 0,
-        totalCount: 0,
-        relayStates: {},
-        overallState: ConnectionState.disconnected,
-      );
+    connectedCount: 0,
+    totalCount: 0,
+    relayStates: {},
+    overallState: ConnectionState.disconnected,
+  );
 
   /// Number of connected relays.
   final int connectedCount;
@@ -56,6 +56,10 @@ class RelayPoolState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [connectedCount, totalCount, relayStates, overallState];
+  List<Object?> get props => [
+    connectedCount,
+    totalCount,
+    relayStates,
+    overallState,
+  ];
 }
