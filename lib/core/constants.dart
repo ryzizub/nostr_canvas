@@ -6,9 +6,6 @@ abstract final class Constants {
   /// Canvas height in pixels.
   static const int canvasHeight = 250;
 
-  /// Nostr relay URL.
-  static const String relayUrl = 'wss://relay.ryzizub.com';
-
   /// PoW difficulty for pixel placement.
   static const int powDifficulty = 18;
 

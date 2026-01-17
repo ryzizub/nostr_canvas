@@ -1,0 +1,11 @@
+name: relay_settings_repository
+description: Repository for persisting relay settings using SharedPreferences.
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+resolution: workspace
+
+dependencies:
+  shared_preferences: ^2.2.2

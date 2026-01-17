@@ -11,18 +11,18 @@ const int pixelEventKind = 9549;
 
 /// Nostr-backed pixel repository.
 ///
-/// Publishes pixels as Nostr events and subscribes to updates from the relay.
+/// Publishes pixels as Nostr events and subscribes to updates from relays.
 class PixelRepository {
-  /// Creates a PixelRepository with a shared [NostrClient].
+  /// Creates a PixelRepository with a shared [RelayPool].
   ///
-  /// The client is shared and its lifecycle is managed externally.
+  /// The pool is shared and its lifecycle is managed externally.
   PixelRepository({
     required this.canvasWidth,
     required this.canvasHeight,
-    required NostrClient nostrClient,
-  }) : _nostrClient = nostrClient;
+    required RelayPool relayPool,
+  }) : _relayPool = relayPool;
 
-  final NostrClient _nostrClient;
+  final RelayPool _relayPool;
 
   /// Canvas width.
   final int canvasWidth;
@@ -31,7 +31,7 @@ class PixelRepository {
   final int canvasHeight;
 
   CanvasData? _canvasData;
-  String? _subscriptionId;
+  Map<String, String>? _subscriptionIds;
   StreamSubscription<Event>? _eventSubscription;
 
   final _canvasUpdatesController = StreamController<CanvasData>.broadcast();
@@ -39,28 +39,27 @@ class PixelRepository {
   /// Stream of canvas updates (emitted after each pixel change).
   Stream<CanvasData> get canvasUpdates => _canvasUpdatesController.stream;
 
-  /// Whether the client is initialized and ready for operations.
-  bool get hasClient => _nostrClient.isInitialized;
+  /// Whether the pool is initialized and ready for operations.
+  bool get hasClient => _relayPool.isInitialized;
 
-  /// The Nostr client.
-  NostrClient get client => _nostrClient;
+  /// The relay pool.
+  RelayPool get pool => _relayPool;
 
-  /// Connection state stream from the underlying client.
-  Stream<ConnectionState> get connectionState => _nostrClient.connectionState;
+  /// Pool state stream from the underlying relay pool.
+  Stream<RelayPoolState> get poolState => _relayPool.poolState;
 
-  /// Current connection state.
-  ConnectionState get currentConnectionState => _nostrClient.currentState;
+  /// Current pool state.
+  RelayPoolState get currentPoolState => _relayPool.currentState;
 
   /// Clear canvas data and reset state.
   ///
   /// Called on logout to clear all data. Does not close stream controllers.
-  /// Does NOT clear the client reference (client lifecycle is managed
-  /// externally).
+  /// Does NOT clear the pool reference (pool lifecycle is managed externally).
   void clear() {
-    // Unsubscribe from relay if connected
-    if (_subscriptionId != null && _nostrClient.isInitialized) {
-      _nostrClient.unsubscribe(_subscriptionId!);
-      _subscriptionId = null;
+    // Unsubscribe from relays if connected
+    if (_subscriptionIds != null && _relayPool.isInitialized) {
+      _relayPool.unsubscribe(_subscriptionIds!);
+      _subscriptionIds = null;
     }
 
     // Cancel event listener
@@ -74,26 +73,26 @@ class PixelRepository {
   }
 
   Future<CanvasData> loadCanvas() async {
-    if (!_nostrClient.isInitialized) {
-      throw StateError('NostrClient not initialized.');
+    if (!_relayPool.isInitialized) {
+      throw StateError('RelayPool not initialized.');
     }
 
     _canvasData = CanvasData(width: canvasWidth, height: canvasHeight);
 
-    // Subscribe to pixel events
-    _subscriptionId = _nostrClient.subscribe([
+    // Subscribe to pixel events on all connected relays
+    _subscriptionIds = _relayPool.subscribe([
       Filter(kinds: [pixelEventKind]),
     ]);
 
-    // Listen to incoming events
-    _eventSubscription = _nostrClient.events.listen(_handleEvent);
+    // Listen to incoming events (deduplicated by RelayPool)
+    _eventSubscription = _relayPool.events.listen(_handleEvent);
 
     return _canvasData!;
   }
 
   Future<void> placePixel(Position position, Color color) async {
-    if (!_nostrClient.isInitialized) {
-      throw StateError('NostrClient not initialized.');
+    if (!_relayPool.isInitialized) {
+      throw StateError('RelayPool not initialized.');
     }
 
     // Validate bounds
@@ -109,7 +108,7 @@ class PixelRepository {
     final rgb = argb & 0xFFFFFF;
     final colorHex = rgb.toRadixString(16).padLeft(6, '0');
 
-    await _nostrClient.publish(
+    await _relayPool.publish(
       kind: pixelEventKind,
       tags: [
         ['x', position.x.toString()],
@@ -124,7 +123,7 @@ class PixelRepository {
   ///
   /// Returns a stream of [PowProgress] updates during mining and sending.
   Stream<PowProgress> placePixelWithProgress(Position position, Color color) {
-    if (!_nostrClient.isInitialized) {
+    if (!_relayPool.isInitialized) {
       return Stream.value(
         const PowError(message: 'Not connected. Please log in first.'),
       );
@@ -145,7 +144,7 @@ class PixelRepository {
     final rgb = argb & 0xFFFFFF;
     final colorHex = rgb.toRadixString(16).padLeft(6, '0');
 
-    return _nostrClient.publishWithProgress(
+    return _relayPool.publishWithProgress(
       kind: pixelEventKind,
       tags: [
         ['x', position.x.toString()],
@@ -158,8 +157,8 @@ class PixelRepository {
 
   /// Dispose resources.
   Future<void> dispose() async {
-    if (_subscriptionId != null && _nostrClient.isInitialized) {
-      _nostrClient.unsubscribe(_subscriptionId!);
+    if (_subscriptionIds != null && _relayPool.isInitialized) {
+      _relayPool.unsubscribe(_subscriptionIds!);
     }
     await _eventSubscription?.cancel();
     await _canvasUpdatesController.close();

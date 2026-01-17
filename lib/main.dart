@@ -8,6 +8,7 @@ import 'package:nostr_canvas/auth/auth.dart';
 import 'package:nostr_canvas/core/constants.dart';
 import 'package:nostr_client/nostr_client.dart';
 import 'package:pixel_repository/pixel_repository.dart';
+import 'package:relay_settings_repository/relay_settings_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,21 +20,28 @@ void main() async {
 
   Bloc.observer = const AppBlocObserver();
 
-  // Create shared NostrClient (uninitialized)
-  final nostrClient = NostrClient();
+  // Initialize relay settings repository
+  final relaySettingsRepository = RelaySettingsRepository();
+  await relaySettingsRepository.init();
 
-  // Create pixel repository with shared client
+  // Get saved relay URLs
+  final relayUrls = relaySettingsRepository.getRelays();
+
+  // Create shared RelayPool (uninitialized)
+  final relayPool = RelayPool();
+
+  // Create pixel repository with shared relay pool
   final pixelRepository = PixelRepository(
     canvasWidth: Constants.canvasWidth,
     canvasHeight: Constants.canvasHeight,
-    nostrClient: nostrClient,
+    relayPool: relayPool,
   );
 
-  // Create auth repository with shared client
+  // Create auth repository with shared relay pool
   final authRepository = AuthRepository(
-    nostrClient: nostrClient,
+    relayPool: relayPool,
     pixelRepository: pixelRepository,
-    relayUrl: Constants.relayUrl,
+    initialRelayUrls: relayUrls,
     powDifficulty: Constants.powDifficulty,
   );
 
@@ -53,6 +61,9 @@ void main() async {
       providers: [
         RepositoryProvider<AuthRepository>.value(value: authRepository),
         RepositoryProvider<PixelRepository>.value(value: pixelRepository),
+        RepositoryProvider<RelaySettingsRepository>.value(
+          value: relaySettingsRepository,
+        ),
       ],
       child: BlocProvider<AuthBloc>.value(
         value: authBloc,
