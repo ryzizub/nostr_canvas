@@ -6,12 +6,20 @@ import 'package:nostr_canvas/pow/bloc/pow_bloc.dart';
 class PowProgressDialog extends StatelessWidget {
   const PowProgressDialog({
     required this.progress,
+    this.queueLength = 0,
     this.onDismiss,
+    this.onRetry,
+    this.onSkip,
+    this.onClearQueue,
     super.key,
   });
 
   final PlacementProgress progress;
+  final int queueLength;
   final VoidCallback? onDismiss;
+  final VoidCallback? onRetry;
+  final VoidCallback? onSkip;
+  final VoidCallback? onClearQueue;
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +41,21 @@ class PowProgressDialog extends StatelessWidget {
                 const SizedBox(height: 16),
                 _MiningStats(progress: progress),
               ],
+              if (queueLength > 0 &&
+                  progress.phase != PlacementPhase.error) ...[
+                const SizedBox(height: 12),
+                _QueueIndicator(queueLength: queueLength),
+              ],
               if (progress.phase == PlacementPhase.error) ...[
                 const SizedBox(height: 16),
                 _ErrorMessage(message: progress.errorMessage),
                 const SizedBox(height: 16),
-                NesButton(
-                  type: NesButtonType.error,
-                  onPressed: onDismiss,
-                  child: const Text('Close'),
+                _ErrorActions(
+                  queueLength: queueLength,
+                  onRetry: onRetry,
+                  onSkip: onSkip,
+                  onClearQueue: onClearQueue,
+                  onDismiss: onDismiss,
                 ),
               ],
             ],
@@ -210,6 +225,86 @@ class _StatRow extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(fontSize: 10),
+        ),
+      ],
+    );
+  }
+}
+
+class _QueueIndicator extends StatelessWidget {
+  const _QueueIndicator({required this.queueLength});
+
+  final int queueLength;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        '$queueLength more in queue',
+        style: TextStyle(
+          fontSize: 10,
+          color: Colors.blue[300],
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorActions extends StatelessWidget {
+  const _ErrorActions({
+    required this.queueLength,
+    this.onRetry,
+    this.onSkip,
+    this.onClearQueue,
+    this.onDismiss,
+  });
+
+  final int queueLength;
+  final VoidCallback? onRetry;
+  final VoidCallback? onSkip;
+  final VoidCallback? onClearQueue;
+  final VoidCallback? onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            NesButton(
+              type: NesButtonType.primary,
+              onPressed: onRetry,
+              child: const Text('Retry'),
+            ),
+            if (queueLength > 0) ...[
+              const SizedBox(width: 8),
+              NesButton(
+                type: NesButtonType.warning,
+                onPressed: onSkip,
+                child: const Text('Skip'),
+              ),
+            ],
+          ],
+        ),
+        if (queueLength > 0) ...[
+          const SizedBox(height: 8),
+          NesButton(
+            type: NesButtonType.error,
+            onPressed: onClearQueue,
+            child: const Text('Clear Queue'),
+          ),
+        ],
+        const SizedBox(height: 8),
+        NesButton(
+          type: NesButtonType.normal,
+          onPressed: onDismiss,
+          child: const Text('Close'),
         ),
       ],
     );

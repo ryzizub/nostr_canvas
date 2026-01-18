@@ -44,12 +44,13 @@ class _CanvasViewState extends State<CanvasView> {
     if (state.status != PowStatus.idle && !_isDialogShowing) {
       // Show dialog
       _isDialogShowing = true;
+      final powBloc = context.read<PowBloc>();
       unawaited(
         showDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: (_) => BlocBuilder<PowBloc, PowState>(
-            bloc: context.read<PowBloc>(),
+            bloc: powBloc,
             builder: (dialogContext, dialogState) {
               final dialogProgress = dialogState.progress;
               if (dialogProgress == null ||
@@ -65,8 +66,20 @@ class _CanvasViewState extends State<CanvasView> {
               }
               return PowProgressDialog(
                 progress: dialogProgress,
+                queueLength: dialogState.queueLength,
                 onDismiss: () {
-                  context.read<PowBloc>().add(const PowDismissed());
+                  powBloc.add(const PowDismissed());
+                  Navigator.of(context).pop();
+                  _isDialogShowing = false;
+                },
+                onRetry: () {
+                  powBloc.add(const PowQueueRetried());
+                },
+                onSkip: () {
+                  powBloc.add(const PowQueueSkipped());
+                },
+                onClearQueue: () {
+                  powBloc.add(const PowQueueCleared());
                   Navigator.of(context).pop();
                   _isDialogShowing = false;
                 },
