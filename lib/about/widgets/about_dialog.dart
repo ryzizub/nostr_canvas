@@ -26,6 +26,8 @@ class AppInfoDialog extends StatelessWidget {
                 const SizedBox(height: 16),
                 const _CreditsSection(),
                 const SizedBox(height: 16),
+                const _DisclaimerSection(),
+                const SizedBox(height: 16),
                 NesButton(
                   type: NesButtonType.normal,
                   onPressed: () => Navigator.of(context).pop(),
@@ -140,6 +142,28 @@ class _CreditsSection extends StatelessWidget {
         ),
         _BulletPoint(text: 'Built with Flutter'),
         _BulletPoint(text: 'Powered by Nostr Protocol'),
+      ],
+    );
+  }
+}
+
+class _DisclaimerSection extends StatelessWidget {
+  const _DisclaimerSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: 'Disclaimer'),
+        SizedBox(height: 8),
+        Text(
+          'This is an open canvas where anyone can draw. The developer takes '
+          'no responsibility for any user-generated content. All pixels are '
+          'placed by individual users and do not reflect the views of the '
+          'developer or platform.',
+          style: TextStyle(fontSize: 10),
+        ),
       ],
     );
   }

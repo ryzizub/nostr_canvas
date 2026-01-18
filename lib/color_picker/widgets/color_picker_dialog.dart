@@ -80,6 +80,17 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
               const SizedBox(height: 16),
               _ColorPreview(color: _selectedColor),
               const SizedBox(height: 16),
+              _ColorPalette(
+                selectedColor: _selectedColor,
+                onColorSelected: (color) {
+                  setState(() {
+                    _selectedColor = color;
+                    _controller.text = _colorToHex(color);
+                    _isValid = true;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
               _HexInput(
                 controller: _controller,
                 isValid: _isValid,
@@ -116,6 +127,65 @@ class _ColorPreview extends StatelessWidget {
         height: 80,
         color: color,
       ),
+    );
+  }
+}
+
+class _ColorPalette extends StatelessWidget {
+  const _ColorPalette({
+    required this.selectedColor,
+    required this.onColorSelected,
+  });
+
+  final Color selectedColor;
+  final ValueChanged<Color> onColorSelected;
+
+  static const _paletteColors = <Color>[
+    // Row 1: Basic colors
+    Color(0xFFFFFFFF), // White
+    Color(0xFF000000), // Black
+    Color(0xFFFF0000), // Red
+    Color(0xFF00FF00), // Green
+    Color(0xFF0000FF), // Blue
+    Color(0xFFFFFF00), // Yellow
+    // Row 2: Extended colors
+    Color(0xFFFF8800), // Orange
+    Color(0xFFFF00FF), // Magenta
+    Color(0xFF00FFFF), // Cyan
+    Color(0xFF8800FF), // Purple
+    Color(0xFFFF0088), // Pink
+    Color(0xFF88FF00), // Lime
+    // Row 3: Muted/dark tones
+    Color(0xFF888888), // Gray
+    Color(0xFF444444), // Dark gray
+    Color(0xFF884400), // Brown
+    Color(0xFF008844), // Forest
+    Color(0xFF004488), // Navy
+    Color(0xFF880044), // Maroon
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      children: _paletteColors.map((color) {
+        final isSelected = color.toARGB32() == selectedColor.toARGB32();
+        return GestureDetector(
+          onTap: () => onColorSelected(color),
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color,
+              border: Border.all(
+                color: isSelected ? Colors.white : Colors.black,
+                width: isSelected ? 3 : 1,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

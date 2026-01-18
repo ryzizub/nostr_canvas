@@ -11,12 +11,12 @@ import 'package:pixel_repository/pixel_repository.dart';
 
 class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
 
-class MockNostrClient extends Mock implements NostrClient {}
+class MockRelayPool extends Mock implements RelayPool {}
 
 void main() {
   group('createAppRouter', () {
     late FlutterSecureStorage mockStorage;
-    late MockNostrClient mockNostrClient;
+    late MockRelayPool mockRelayPool;
     late PixelRepository pixelRepository;
     late AuthRepository authRepository;
     late AuthBloc authBloc;
@@ -36,21 +36,21 @@ void main() {
         () => mockStorage.delete(key: any(named: 'key')),
       ).thenAnswer((_) async {});
 
-      mockNostrClient = MockNostrClient();
-      when(() => mockNostrClient.isInitialized).thenReturn(false);
-      when(() => mockNostrClient.deinitialize()).thenAnswer((_) async {});
+      mockRelayPool = MockRelayPool();
+      when(() => mockRelayPool.isInitialized).thenReturn(false);
+      when(() => mockRelayPool.deinitialize()).thenAnswer((_) async {});
 
       pixelRepository = PixelRepository(
         canvasWidth: 100,
         canvasHeight: 100,
-        nostrClient: mockNostrClient,
+        relayPool: mockRelayPool,
       );
 
       authRepository = AuthRepository(
         storage: mockStorage,
-        nostrClient: mockNostrClient,
+        relayPool: mockRelayPool,
         pixelRepository: pixelRepository,
-        relayUrl: 'wss://test.relay',
+        initialRelayUrls: ['wss://test.relay'],
         powDifficulty: 0,
       );
       authBloc = AuthBloc(authRepository: authRepository);

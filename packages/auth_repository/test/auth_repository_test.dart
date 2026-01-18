@@ -7,19 +7,25 @@ import 'package:pixel_repository/pixel_repository.dart';
 
 class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
 
-class MockNostrClient extends Mock implements NostrClient {}
+class MockRelayPool extends Mock implements RelayPool {}
 
 class MockPixelRepository extends Mock implements PixelRepository {}
 
+class FakeNostrSigner extends Fake implements NostrSigner {}
+
 void main() {
   late MockFlutterSecureStorage mockStorage;
-  late MockNostrClient mockNostrClient;
+  late MockRelayPool mockRelayPool;
   late MockPixelRepository mockPixelRepository;
   late AuthRepository authRepository;
 
+  setUpAll(() {
+    registerFallbackValue(FakeNostrSigner());
+  });
+
   setUp(() {
     mockStorage = MockFlutterSecureStorage();
-    mockNostrClient = MockNostrClient();
+    mockRelayPool = MockRelayPool();
     mockPixelRepository = MockPixelRepository();
 
     // Default storage stubs
@@ -36,25 +42,26 @@ void main() {
       () => mockStorage.delete(key: any(named: 'key')),
     ).thenAnswer((_) async {});
 
-    // Default NostrClient stubs
-    when(() => mockNostrClient.isInitialized).thenReturn(false);
+    // Default RelayPool stubs
+    when(() => mockRelayPool.isInitialized).thenReturn(false);
     when(
-      () => mockNostrClient.initialize(
-        relayUrl: any(named: 'relayUrl'),
+      () => mockRelayPool.initialize(
         signer: any(named: 'signer'),
         powDifficulty: any(named: 'powDifficulty'),
       ),
     ).thenAnswer((_) async {});
-    when(() => mockNostrClient.connect()).thenAnswer((_) async {});
-    when(() => mockNostrClient.deinitialize()).thenAnswer((_) async {});
+    when(
+      () => mockRelayPool.addRelay(any()),
+    ).thenAnswer((_) async {});
+    when(() => mockRelayPool.deinitialize()).thenAnswer((_) async {});
 
     // Default PixelRepository stubs
     when(() => mockPixelRepository.clear()).thenReturn(null);
 
     authRepository = AuthRepository(
-      nostrClient: mockNostrClient,
+      relayPool: mockRelayPool,
       pixelRepository: mockPixelRepository,
-      relayUrl: 'wss://test.relay',
+      initialRelayUrls: ['wss://test.relay'],
       powDifficulty: 0,
       storage: mockStorage,
     );
@@ -72,21 +79,26 @@ void main() {
         expect(result, isNull);
       });
 
-      test('returns null and clears credentials for NIP-07 method', () async {
-        when(
-          () => mockStorage.read(key: 'auth_method'),
-        ).thenAnswer((_) async => 'nip07');
-        when(
-          () => mockStorage.read(key: 'auth_public_key'),
-        ).thenAnswer((_) async => 'pubkey123');
+      test(
+        'returns null and clears NIP-07 credentials when extension unavailable',
+        () async {
+          // NIP-07 sessions require the browser extension to be available.
+          // In tests, Nip07Signer.isAvailable is false, so it clears creds.
+          when(
+            () => mockStorage.read(key: 'auth_method'),
+          ).thenAnswer((_) async => 'nip07');
+          when(
+            () => mockStorage.read(key: 'auth_public_key'),
+          ).thenAnswer((_) async => 'pubkey123');
 
-        final result = await authRepository.checkStoredCredentials();
+          final result = await authRepository.checkStoredCredentials();
 
-        expect(result, isNull);
-        verify(() => mockStorage.delete(key: 'auth_method')).called(1);
-        verify(() => mockStorage.delete(key: 'auth_public_key')).called(1);
-        verify(() => mockStorage.delete(key: 'auth_private_key')).called(1);
-      });
+          expect(result, isNull);
+          verify(() => mockStorage.delete(key: 'auth_method')).called(1);
+          verify(() => mockStorage.delete(key: 'auth_public_key')).called(1);
+          verify(() => mockStorage.delete(key: 'auth_private_key')).called(1);
+        },
+      );
 
       test('returns null when private key is missing', () async {
         when(
@@ -124,12 +136,11 @@ void main() {
         expect(result, isNotNull);
         expect(result!.method, AuthMethod.guest);
         verify(
-          () => mockNostrClient.initialize(
-            relayUrl: 'wss://test.relay',
+          () => mockRelayPool.initialize(
             signer: any(named: 'signer'),
           ),
         ).called(1);
-        verify(() => mockNostrClient.connect()).called(1);
+        verify(() => mockRelayPool.addRelay('wss://test.relay')).called(1);
       });
     });
 
@@ -146,12 +157,11 @@ void main() {
           ),
         ).called(1);
         verify(
-          () => mockNostrClient.initialize(
-            relayUrl: 'wss://test.relay',
+          () => mockRelayPool.initialize(
             signer: any(named: 'signer'),
           ),
         ).called(1);
-        verify(() => mockNostrClient.connect()).called(1);
+        verify(() => mockRelayPool.addRelay('wss://test.relay')).called(1);
       });
     });
 
@@ -172,11 +182,11 @@ void main() {
     });
 
     group('logout', () {
-      test('clears repository, client, and credentials', () async {
+      test('clears repository, pool, and credentials', () async {
         await authRepository.logout();
 
         verify(() => mockPixelRepository.clear()).called(1);
-        verify(() => mockNostrClient.deinitialize()).called(1);
+        verify(() => mockRelayPool.deinitialize()).called(1);
         verify(() => mockStorage.delete(key: 'auth_method')).called(1);
         verify(() => mockStorage.delete(key: 'auth_public_key')).called(1);
         verify(() => mockStorage.delete(key: 'auth_private_key')).called(1);
@@ -184,10 +194,10 @@ void main() {
     });
 
     group('dispose', () {
-      test('deinitializes NostrClient', () async {
+      test('deinitializes RelayPool', () async {
         await authRepository.dispose();
 
-        verify(() => mockNostrClient.deinitialize()).called(1);
+        verify(() => mockRelayPool.deinitialize()).called(1);
       });
     });
   });

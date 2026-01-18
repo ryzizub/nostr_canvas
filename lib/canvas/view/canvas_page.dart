@@ -6,6 +6,7 @@ import 'package:nostr_canvas/canvas/view/canvas_view.dart';
 import 'package:nostr_canvas/color_selection/color_selection.dart';
 import 'package:nostr_canvas/pow/pow.dart';
 import 'package:pixel_repository/pixel_repository.dart';
+import 'package:relay_settings_repository/relay_settings_repository.dart';
 
 /// Entry point page for the canvas feature.
 ///
@@ -30,6 +31,7 @@ class CanvasPage extends StatelessWidget {
         BlocProvider(
           create: (context) => RelayBloc(
             pixelRepository: context.read<PixelRepository>(),
+            relaySettingsRepository: context.read<RelaySettingsRepository>(),
           )..add(const RelaySubscriptionRequested()),
         ),
         BlocProvider(create: (_) => ColorSelectionBloc()),

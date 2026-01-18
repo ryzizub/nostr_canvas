@@ -109,15 +109,9 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     }
 
     if (_isPanning) {
-      // Move camera opposite to drag direction, scaled by zoom
       final delta = info.delta.global;
       final scaledDelta = Vector2(delta.x, delta.y) / camera.viewfinder.zoom;
-      final newPosition = camera.viewfinder.position - scaledDelta;
-
-      // Dispatch event - CameraControllerComponent will apply
-      canvasBloc.add(
-        CameraPositionChanged(Offset(newPosition.x, newPosition.y)),
-      );
+      camera.viewfinder.position -= scaledDelta;
     }
   }
 
@@ -126,6 +120,10 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     // If we weren't panning, treat this as a tap
     if (!_isPanning && _panStartScreenPosition != null) {
       _handleTap(_panStartScreenPosition!);
+    } else if (_isPanning) {
+      // Sync final camera position to bloc for state persistence
+      final pos = camera.viewfinder.position;
+      canvasBloc.add(CameraPositionChanged(Offset(pos.x, pos.y)));
     }
     _panStartPosition = null;
     _panStartScreenPosition = null;

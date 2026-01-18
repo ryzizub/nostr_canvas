@@ -8,18 +8,18 @@ import 'package:pixel_repository/pixel_repository.dart';
 
 /// Authentication repository for Nostr Canvas.
 ///
-/// Handles credential storage, NostrClient lifecycle, and authentication.
+/// Handles credential storage, RelayPool lifecycle, and authentication.
 /// This is a pure data layer - no state management.
 class AuthRepository {
   AuthRepository({
-    required NostrClient nostrClient,
+    required RelayPool relayPool,
     required PixelRepository pixelRepository,
-    required String relayUrl,
+    required List<String> initialRelayUrls,
     required int powDifficulty,
     FlutterSecureStorage? storage,
-  }) : _nostrClient = nostrClient,
+  }) : _relayPool = relayPool,
        _pixelRepository = pixelRepository,
-       _relayUrl = relayUrl,
+       _initialRelayUrls = initialRelayUrls,
        _powDifficulty = powDifficulty,
        _storage =
            storage ??
@@ -30,9 +30,9 @@ class AuthRepository {
              ),
            );
 
-  final NostrClient _nostrClient;
+  final RelayPool _relayPool;
   final PixelRepository _pixelRepository;
-  final String _relayUrl;
+  final List<String> _initialRelayUrls;
   final int _powDifficulty;
   final FlutterSecureStorage _storage;
 
@@ -45,8 +45,8 @@ class AuthRepository {
   /// The current NostrSigner (null if not authenticated).
   NostrSigner? get signer => _signer;
 
-  /// The Nostr client.
-  NostrClient get nostrClient => _nostrClient;
+  /// The relay pool.
+  RelayPool get relayPool => _relayPool;
 
   /// Check for stored credentials and restore session.
   ///
@@ -59,10 +59,9 @@ class AuthRepository {
       return null;
     }
 
-    // Don't restore NIP-07 sessions (requires re-auth with extension)
+    // Try to restore NIP-07 session automatically
     if (credentials.method == AuthMethod.nip07.name) {
-      await _clearCredentials();
-      return null;
+      return _tryRestoreNip07Session(credentials.publicKey);
     }
 
     // Need private key to restore session
@@ -71,7 +70,7 @@ class AuthRepository {
     }
 
     _signer = LocalSigner.fromPrivateKeyHex(credentials.privateKey!);
-    await _connectClient();
+    await _connectPool();
 
     final method = AuthMethod.values.firstWhere(
       (m) => m.name == credentials.method,
@@ -82,6 +81,46 @@ class AuthRepository {
       publicKey: credentials.publicKey,
       method: method,
     );
+  }
+
+  /// Try to restore a NIP-07 session by re-authenticating with the extension.
+  ///
+  /// Returns [AuthUser] if extension is available and user approves,
+  /// null otherwise (clears credentials on failure).
+  Future<AuthUser?> _tryRestoreNip07Session(String storedPublicKey) async {
+    try {
+      // Check if NIP-07 extension is available
+      if (!Nip07Signer.isAvailable) {
+        await _clearCredentials();
+        return null;
+      }
+
+      // Try to get public key from extension (this may prompt user)
+      final nip07Signer = await Nip07Signer.create();
+
+      // Verify the public key matches the stored one
+      if (nip07Signer.publicKey != storedPublicKey) {
+        // Different account - clear stored credentials
+        await _clearCredentials();
+        return null;
+      }
+
+      _signer = nip07Signer;
+      await _connectPool();
+
+      return AuthUser(
+        publicKey: nip07Signer.publicKey,
+        method: AuthMethod.nip07,
+      );
+    } on SignerException {
+      // Extension not available or user denied - clear credentials
+      await _clearCredentials();
+      return null;
+    } on Object {
+      // Any other error - clear credentials
+      await _clearCredentials();
+      return null;
+    }
   }
 
   /// Login as guest (generate new random key).
@@ -97,7 +136,7 @@ class AuthRepository {
       privateKey: localSigner.privateKey,
     );
 
-    await _connectClient();
+    await _connectPool();
 
     return AuthUser(
       publicKey: localSigner.publicKey,
@@ -120,7 +159,7 @@ class AuthRepository {
       privateKey: localSigner.privateKey,
     );
 
-    await _connectClient();
+    await _connectPool();
 
     return AuthUser(
       publicKey: localSigner.publicKey,
@@ -141,7 +180,7 @@ class AuthRepository {
       publicKey: nip07Signer.publicKey,
     );
 
-    await _connectClient();
+    await _connectPool();
 
     return AuthUser(
       publicKey: nip07Signer.publicKey,
@@ -154,8 +193,8 @@ class AuthRepository {
     // Clear pixel repository data
     _pixelRepository.clear();
 
-    // Deinitialize NostrClient (disconnect and clear config)
-    await _nostrClient.deinitialize();
+    // Deinitialize RelayPool (disconnect and clear config)
+    await _relayPool.deinitialize();
     _signer = null;
 
     // Clear stored credentials
@@ -164,20 +203,24 @@ class AuthRepository {
 
   /// Dispose resources.
   Future<void> dispose() async {
-    await _nostrClient.deinitialize();
+    await _relayPool.deinitialize();
   }
 
   // Private helpers
 
-  Future<void> _connectClient() async {
+  Future<void> _connectPool() async {
     if (_signer == null) return;
 
-    await _nostrClient.initialize(
-      relayUrl: _relayUrl,
+    // Initialize the pool with signer and PoW settings
+    await _relayPool.initialize(
       signer: _signer!,
       powDifficulty: _powDifficulty,
     );
-    await _nostrClient.connect();
+
+    // Add all initial relays
+    for (final url in _initialRelayUrls) {
+      await _relayPool.addRelay(url);
+    }
   }
 
   String _parseNsec(String nsec) {
