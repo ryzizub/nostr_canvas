@@ -238,6 +238,7 @@ class NostrClient {
   ConnectionState _currentState = ConnectionState.disconnected;
 
   final _eventController = StreamController<Event>.broadcast();
+  final _eoseController = StreamController<String>.broadcast();
 
   /// Stream of connection state changes.
   ///
@@ -253,6 +254,11 @@ class NostrClient {
 
   /// Stream of incoming events from the relay.
   Stream<Event> get events => _eventController.stream;
+
+  /// Stream of EOSE (End Of Stored Events) messages.
+  ///
+  /// Emits subscription IDs when all stored events have been sent.
+  Stream<String> get eose => _eoseController.stream;
 
   void _updateState(ConnectionState state) {
     _currentState = state;
@@ -314,6 +320,9 @@ class NostrClient {
       if (messageType == 'EVENT' && data.length >= 3) {
         final event = Event.deserialize(data, verify: false);
         _eventController.add(event);
+      } else if (messageType == 'EOSE' && data.length >= 2) {
+        final subscriptionId = data[1] as String;
+        _eoseController.add(subscriptionId);
       }
     } on Object {
       // Skip malformed messages
@@ -615,6 +624,7 @@ class NostrClient {
     await disconnect();
     await _connectionStateController.close();
     await _eventController.close();
+    await _eoseController.close();
   }
 }
 

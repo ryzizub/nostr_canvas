@@ -8,6 +8,7 @@ import 'package:nostr_canvas/auth/auth.dart';
 import 'package:nostr_canvas/core/constants.dart';
 import 'package:nostr_client/nostr_client.dart';
 import 'package:pixel_repository/pixel_repository.dart';
+import 'package:profile_repository/profile_repository.dart';
 import 'package:relay_settings_repository/relay_settings_repository.dart';
 
 void main() async {
@@ -45,6 +46,9 @@ void main() async {
     powDifficulty: Constants.powDifficulty,
   );
 
+  // Create profile repository with shared relay pool
+  final profileRepository = ProfileRepository(relayPool: relayPool);
+
   // Create AuthBloc and check for stored credentials
   final authBloc = AuthBloc(authRepository: authRepository)
     ..add(const AuthCheckRequested());
@@ -61,6 +65,7 @@ void main() async {
       providers: [
         RepositoryProvider<AuthRepository>.value(value: authRepository),
         RepositoryProvider<PixelRepository>.value(value: pixelRepository),
+        RepositoryProvider<ProfileRepository>.value(value: profileRepository),
         RepositoryProvider<RelaySettingsRepository>.value(
           value: relaySettingsRepository,
         ),
