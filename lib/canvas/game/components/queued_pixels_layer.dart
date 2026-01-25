@@ -9,7 +9,8 @@ import 'package:nostr_canvas/pow/pow.dart';
 /// Listens to PowBloc and updates visual representation of the queue.
 class QueuedPixelsLayer extends PositionComponent
     with FlameBlocListenable<PowBloc, PowState> {
-  QueuedPixelsLayer() : super(position: Vector2.zero());
+  /// Priority 10 ensures queued pixels render on top of placed pixels.
+  QueuedPixelsLayer() : super(position: Vector2.zero(), priority: 10);
 
   final Map<String, QueuedPixelComponent> _queuedComponents = {};
   QueuedPixelComponent? _currentPixelComponent;
@@ -57,20 +58,20 @@ class QueuedPixelsLayer extends PositionComponent
       _currentPixelComponent = null;
     }
 
-    // Add current pixel component (processing)
+    // Add current pixel component (processing) - position 1
     if (state.currentPixel != null && _currentPixelComponent == null) {
       _currentPixelComponent = QueuedPixelComponent(
         queuedPixel: state.currentPixel!,
-        queuePosition: 0,
+        queuePosition: 1,
         isProcessing: true,
       );
       await add(_currentPixelComponent!);
     }
 
-    // Update or add queued pixel components
+    // Update or add queued pixel components - positions 2, 3, 4...
     for (var i = 0; i < state.queue.length; i++) {
       final pixel = state.queue[i];
-      final queuePosition = i + 1;
+      final queuePosition = i + 2;
 
       if (_queuedComponents.containsKey(pixel.id)) {
         // Component exists - check if position changed

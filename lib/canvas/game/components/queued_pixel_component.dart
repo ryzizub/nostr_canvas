@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flame/components.dart';
-import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_canvas/core/constants.dart';
 import 'package:nostr_canvas/pow/models/queued_pixel.dart';
@@ -27,15 +26,25 @@ class QueuedPixelComponent extends PositionComponent {
   static const _borderWidth = 1.0;
   static const _dashLength = 2.0;
   static const _gapLength = 2.0;
+  static const _blinkInterval = 0.3;
 
   late final Paint _fillPaint;
+  late final Paint _blinkPaint;
   late final Paint _borderPaint;
+
+  double _blinkTimer = 0;
+  bool _showBlink = false;
 
   @override
   Future<void> onLoad() async {
-    // Semi-transparent fill
+    // Full color fill for both processing and queued pixels
     _fillPaint = Paint()
-      ..color = queuedPixel.color.withValues(alpha: 0.5)
+      ..color = queuedPixel.color
+      ..style = PaintingStyle.fill;
+
+    // White paint for blinking effect on processing pixel
+    _blinkPaint = Paint()
+      ..color = Colors.white
       ..style = PaintingStyle.fill;
 
     // Dashed border paint
@@ -43,19 +52,18 @@ class QueuedPixelComponent extends PositionComponent {
       ..color = Colors.black
       ..style = PaintingStyle.stroke
       ..strokeWidth = _borderWidth;
+  }
 
-    // Add pulsing effect for currently processing pixel
+  @override
+  void update(double dt) {
+    super.update(dt);
+
     if (isProcessing) {
-      await add(
-        OpacityEffect.to(
-          0.5,
-          EffectController(
-            duration: 0.5,
-            reverseDuration: 0.5,
-            infinite: true,
-          ),
-        ),
-      );
+      _blinkTimer += dt;
+      if (_blinkTimer >= _blinkInterval) {
+        _blinkTimer = 0;
+        _showBlink = !_showBlink;
+      }
     }
   }
 
@@ -63,16 +71,18 @@ class QueuedPixelComponent extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    // Draw semi-transparent fill
-    canvas.drawRect(size.toRect(), _fillPaint);
+    // Draw fill - processing pixel blinks between its color and white
+    if (isProcessing && _showBlink) {
+      canvas.drawRect(size.toRect(), _blinkPaint);
+    } else {
+      canvas.drawRect(size.toRect(), _fillPaint);
+    }
 
     // Draw dashed border
     _drawDashedBorder(canvas);
 
-    // Draw queue position badge
-    if (!isProcessing && queuePosition > 0) {
-      _drawQueueBadge(canvas);
-    }
+    // Always draw queue position badge (including processing pixel)
+    _drawQueueBadge(canvas);
   }
 
   void _drawDashedBorder(Canvas canvas) {
@@ -97,8 +107,9 @@ class QueuedPixelComponent extends PositionComponent {
   }
 
   void _drawQueueBadge(Canvas canvas) {
-    const badgeSize = 8.0;
-    const badgeOffset = 2.0;
+    // Small badge in top-right corner
+    const badgeSize = 6.0;
+    const badgeOffset = 1.0;
 
     final badgeRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(
@@ -107,22 +118,30 @@ class QueuedPixelComponent extends PositionComponent {
         badgeSize,
         badgeSize,
       ),
-      const Radius.circular(2),
+      const Radius.circular(1),
     );
 
-    // Badge background
-    canvas.drawRRect(
-      badgeRect,
-      Paint()..color = Colors.black87,
-    );
+    // Badge background and border
+    canvas
+      ..drawRRect(
+        badgeRect,
+        Paint()..color = Colors.white,
+      )
+      ..drawRRect(
+        badgeRect,
+        Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.5,
+      );
 
     // Badge text
     final textPainter = TextPainter(
       text: TextSpan(
         text: queuePosition.toString(),
         style: const TextStyle(
-          color: Colors.white,
-          fontSize: 6,
+          color: Colors.black,
+          fontSize: 4,
           fontWeight: FontWeight.bold,
         ),
       ),
