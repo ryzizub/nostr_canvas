@@ -5,6 +5,7 @@ import 'package:nostr_canvas/canvas/widgets/color_picker_button.dart';
 import 'package:nostr_canvas/canvas/widgets/grid_toggle_button.dart';
 import 'package:nostr_canvas/canvas/widgets/inspect_mode_button.dart';
 import 'package:nostr_canvas/canvas/widgets/logout_button.dart';
+import 'package:nostr_canvas/canvas/widgets/queue_button.dart';
 import 'package:nostr_canvas/canvas/widgets/relay_status_indicator.dart';
 
 class CanvasToolbar extends StatelessWidget {
@@ -18,6 +19,8 @@ class CanvasToolbar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ColorPickerButton(),
+          SizedBox(height: 8),
+          QueueButton(),
           SizedBox(height: 8),
           InspectModeButton(),
           SizedBox(height: 8),

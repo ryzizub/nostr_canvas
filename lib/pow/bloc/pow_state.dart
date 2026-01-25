@@ -5,6 +5,9 @@ enum PowStatus { idle, mining, sending, error }
 /// Phase of the placement operation (for UI display).
 enum PlacementPhase { mining, sending, success, error }
 
+/// Maximum number of pixels that can be queued.
+const int maxQueueSize = 10;
+
 /// Progress of a pixel placement operation.
 class PlacementProgress extends Equatable {
   const PlacementProgress({
@@ -38,21 +41,42 @@ class PowState extends Equatable {
   const PowState({
     this.status = PowStatus.idle,
     this.progress,
+    this.queue = const [],
+    this.currentPixel,
   });
 
   final PowStatus status;
   final PlacementProgress? progress;
 
+  /// Ordered list of queued pixels waiting to be processed.
+  final List<QueuedPixel> queue;
+
+  /// The pixel currently being processed (mining/sending).
+  final QueuedPixel? currentPixel;
+
+  /// Whether there are pixels in the queue.
+  bool get hasQueuedPixels => queue.isNotEmpty;
+
+  /// Number of pixels in the queue.
+  int get queueLength => queue.length;
+
+  /// Whether more pixels can be added to the queue.
+  bool get canAddToQueue => queue.length < maxQueueSize;
+
   @override
-  List<Object?> get props => [status, progress];
+  List<Object?> get props => [status, progress, queue, currentPixel];
 
   PowState copyWith({
     PowStatus? status,
     PlacementProgress? Function()? progress,
+    List<QueuedPixel>? queue,
+    QueuedPixel? Function()? currentPixel,
   }) {
     return PowState(
       status: status ?? this.status,
       progress: progress != null ? progress() : this.progress,
+      queue: queue ?? this.queue,
+      currentPixel: currentPixel != null ? currentPixel() : this.currentPixel,
     );
   }
 }

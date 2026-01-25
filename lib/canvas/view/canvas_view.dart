@@ -21,7 +21,6 @@ class CanvasView extends StatefulWidget {
 
 class _CanvasViewState extends State<CanvasView> {
   CanvasGame? _game;
-  bool _isDialogShowing = false;
   bool _isInspectDialogShowing = false;
 
   void _handleInspectStateChange(BuildContext context, CanvasState state) {
@@ -35,46 +34,6 @@ class _CanvasViewState extends State<CanvasView> {
         ).then((_) {
           _isInspectDialogShowing = false;
           canvasBloc.add(const PixelInspectDismissed());
-        }),
-      );
-    }
-  }
-
-  void _handlePowStateChange(BuildContext context, PowState state) {
-    if (state.status != PowStatus.idle && !_isDialogShowing) {
-      // Show dialog
-      _isDialogShowing = true;
-      unawaited(
-        showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => BlocBuilder<PowBloc, PowState>(
-            bloc: context.read<PowBloc>(),
-            builder: (dialogContext, dialogState) {
-              final dialogProgress = dialogState.progress;
-              if (dialogProgress == null ||
-                  dialogState.status == PowStatus.idle) {
-                // Close dialog if progress is null or idle
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (_isDialogShowing) {
-                    Navigator.of(context).pop();
-                    _isDialogShowing = false;
-                  }
-                });
-                return const SizedBox.shrink();
-              }
-              return PowProgressDialog(
-                progress: dialogProgress,
-                onDismiss: () {
-                  context.read<PowBloc>().add(const PowDismissed());
-                  Navigator.of(context).pop();
-                  _isDialogShowing = false;
-                },
-              );
-            },
-          ),
-        ).then((_) {
-          _isDialogShowing = false;
         }),
       );
     }
@@ -100,24 +59,21 @@ class _CanvasViewState extends State<CanvasView> {
           bottom: 16,
           child: ZoomControls(),
         ),
+        const Positioned(
+          top: 16,
+          right: 16,
+          child: MiningIndicator(),
+        ),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<PowBloc, PowState>(
-          listenWhen: (previous, current) => previous.status != current.status,
-          listener: _handlePowStateChange,
-        ),
-        BlocListener<CanvasBloc, CanvasState>(
-          listenWhen: (previous, current) =>
-              previous.inspectedPixel != current.inspectedPixel,
-          listener: _handleInspectStateChange,
-        ),
-      ],
+    return BlocListener<CanvasBloc, CanvasState>(
+      listenWhen: (previous, current) =>
+          previous.inspectedPixel != current.inspectedPixel,
+      listener: _handleInspectStateChange,
       child: Scaffold(
         body: BlocBuilder<CanvasBloc, CanvasState>(
           builder: (context, state) {

@@ -158,9 +158,9 @@ class CanvasGame extends FlameGame with PanDetector, ScrollDetector {
     final pixelGrid = world.descendants().whereType<PixelGridComponent>().first;
     unawaited(pixelGrid.addClickHighlight(gridPosition.x, gridPosition.y));
 
-    // Place pixel via PowBloc
+    // Queue pixel for placement via PowBloc
     powBloc.add(
-      PowPlacePixelRequested(
+      PowPixelQueued(
         position: gridPosition,
         color: colorSelectionBloc.state.selectedColor,
       ),

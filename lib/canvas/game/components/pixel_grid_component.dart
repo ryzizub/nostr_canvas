@@ -7,6 +7,7 @@ import 'package:nostr_canvas/canvas/game/canvas_game.dart';
 import 'package:nostr_canvas/canvas/game/components/click_highlight_component.dart';
 import 'package:nostr_canvas/canvas/game/components/grid_lines_component.dart';
 import 'package:nostr_canvas/canvas/game/components/pixel_component.dart';
+import 'package:nostr_canvas/canvas/game/components/queued_pixels_layer.dart';
 import 'package:nostr_canvas/core/constants.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
@@ -24,6 +25,7 @@ class PixelGridComponent extends PositionComponent
 
   final Map<String, PixelComponent> _pixelComponents = {};
   GridLinesComponent? _gridLines;
+  QueuedPixelsLayer? _queuedPixelsLayer;
   int _currentGridWidth = 0;
   int _currentGridHeight = 0;
 
@@ -90,6 +92,12 @@ class PixelGridComponent extends PositionComponent
     // Only add grid lines if grid is enabled
     if (gridEnabled) {
       await add(_gridLines!);
+    }
+
+    // Add queued pixels layer if not already added
+    if (_queuedPixelsLayer == null) {
+      _queuedPixelsLayer = QueuedPixelsLayer();
+      await add(_queuedPixelsLayer!);
     }
   }
 
