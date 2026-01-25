@@ -13,7 +13,6 @@ class PowBloc extends Bloc<PowEvent, PowState> {
     required PixelRepository pixelRepository,
   }) : _pixelRepository = pixelRepository,
        super(const PowState()) {
-    on<PowPlacePixelRequested>(_onPlacePixelRequested);
     on<PowPixelQueued>(_onPixelQueued);
     on<PowQueueItemRemoved>(_onQueueItemRemoved);
     on<PowQueueCleared>(_onQueueCleared);
@@ -198,14 +197,6 @@ class PowBloc extends Bloc<PowEvent, PowState> {
         ),
       );
     }
-  }
-
-  Future<void> _onPlacePixelRequested(
-    PowPlacePixelRequested event,
-    Emitter<PowState> emit,
-  ) async {
-    // Legacy method - convert to queue-based approach
-    add(PowPixelQueued(position: event.position, color: event.color));
   }
 
   void _onDismissed(
