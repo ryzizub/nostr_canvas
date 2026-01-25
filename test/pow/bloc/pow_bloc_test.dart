@@ -35,7 +35,9 @@ void main() {
         setUp: () {
           when(
             () => pixelRepository.placePixelWithProgress(any(), any()),
-          ).thenAnswer((_) => Stream.value(const PowSuccess(eventId: 'test-event-id')));
+          ).thenAnswer(
+            (_) => Stream.value(const PowSuccess(eventId: 'test-event-id')),
+          );
         },
         build: () => PowBloc(pixelRepository: pixelRepository),
         act: (bloc) => bloc.add(
@@ -220,7 +222,9 @@ void main() {
         setUp: () {
           when(
             () => pixelRepository.placePixelWithProgress(any(), any()),
-          ).thenAnswer((_) => Stream.value(const PowSuccess(eventId: 'test-event-id')));
+          ).thenAnswer(
+            (_) => Stream.value(const PowSuccess(eventId: 'test-event-id')),
+          );
         },
         build: () => PowBloc(pixelRepository: pixelRepository),
         seed: () => PowState(
@@ -286,7 +290,9 @@ void main() {
         setUp: () {
           when(
             () => pixelRepository.placePixelWithProgress(any(), any()),
-          ).thenAnswer((_) => Stream.value(const PowSuccess(eventId: 'test-event-id')));
+          ).thenAnswer(
+            (_) => Stream.value(const PowSuccess(eventId: 'test-event-id')),
+          );
         },
         build: () => PowBloc(pixelRepository: pixelRepository),
         seed: () => PowState(
