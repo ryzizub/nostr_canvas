@@ -10,6 +10,7 @@ workspace:
   - packages/auth_repository
   - packages/pixel_repository
   - packages/nostr_client
+  - packages/profile_repository
   - packages/relay_settings_repository
 
 dependencies:
@@ -33,6 +34,7 @@ dependencies:
   nostr: ^1.5.0
   nostr_client:
   pixel_repository:
+  profile_repository:
   relay_settings_repository:
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.5

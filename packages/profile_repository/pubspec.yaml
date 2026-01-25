@@ -1,0 +1,13 @@
+name: profile_repository
+description: Profile repository for Nostr Canvas - fetches Kind-0 metadata
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.9.0
+
+resolution: workspace
+
+dependencies:
+  equatable: ^2.0.8
+  nostr_client:

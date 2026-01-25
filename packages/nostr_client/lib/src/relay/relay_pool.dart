@@ -300,6 +300,102 @@ class RelayPool {
     }
   }
 
+  /// Performs a one-shot query and returns matching events.
+  ///
+  /// Unlike [subscribe], this method:
+  /// - Does NOT deduplicate events (useful for fetching known events)
+  /// - Waits for EOSE from all relays (with fallback timeout)
+  /// - Returns all matching events received
+  ///
+  /// Use this for fetching specific events like user profiles (Kind-0).
+  Future<List<Event>> query(
+    List<Filter> filters, {
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    _assertInitialized();
+
+    final events = <Event>[];
+    final subscriptions = <_QuerySubscription>[];
+    final pendingEose = <String>{};
+
+    // Subscribe to each connected client directly (bypass deduplication)
+    for (final entry in _clients.entries) {
+      if (entry.value.currentState == ConnectionState.connected) {
+        try {
+          final subId = entry.value.subscribe(filters);
+          pendingEose.add(subId);
+
+          subscriptions.add(
+            _QuerySubscription(
+              subscriptionId: subId,
+              client: entry.value,
+            ),
+          );
+        } on Object {
+          // Skip relays that fail
+        }
+      }
+    }
+
+    if (subscriptions.isEmpty) {
+      return events;
+    }
+
+    final completer = Completer<void>();
+
+    // Listen to events and EOSE from each client
+    for (final sub in subscriptions) {
+      sub
+        ..eventSubscription = sub.client.events.listen((event) {
+          for (final filter in filters) {
+            if (_eventMatchesFilter(event, filter)) {
+              if (!events.any((e) => e.id == event.id)) {
+                events.add(event);
+              }
+              break;
+            }
+          }
+        })
+        ..eoseSubscription = sub.client.eose.listen((subId) {
+          if (subId == sub.subscriptionId) {
+            pendingEose.remove(subId);
+            if (pendingEose.isEmpty && !completer.isCompleted) {
+              completer.complete();
+            }
+          }
+        });
+    }
+
+    // Wait for all EOSE or timeout
+    await completer.future.timeout(timeout, onTimeout: () {});
+
+    // Cleanup
+    for (final sub in subscriptions) {
+      await sub.eventSubscription?.cancel();
+      await sub.eoseSubscription?.cancel();
+      try {
+        sub.client.unsubscribe(sub.subscriptionId);
+      } on Object {
+        // Ignore errors during cleanup
+      }
+    }
+
+    return events;
+  }
+
+  bool _eventMatchesFilter(Event event, Filter filter) {
+    if (filter.kinds != null && !filter.kinds!.contains(event.kind)) {
+      return false;
+    }
+    if (filter.authors != null && !filter.authors!.contains(event.pubkey)) {
+      return false;
+    }
+    if (filter.ids != null && !filter.ids!.contains(event.id)) {
+      return false;
+    }
+    return true;
+  }
+
   /// Dispose resources.
   Future<void> dispose() async {
     await deinitialize();
@@ -350,4 +446,21 @@ class RelayPool {
       overallState: overall,
     );
   }
+}
+
+/// Helper class for tracking query subscriptions.
+class _QuerySubscription {
+  _QuerySubscription({
+    required this.subscriptionId,
+    required this.client,
+  });
+
+  final String subscriptionId;
+  final NostrClient client;
+
+  // ignore: cancel_subscriptions - cancelled in RelayPool.query cleanup
+  StreamSubscription<Event>? eventSubscription;
+
+  // ignore: cancel_subscriptions - cancelled in RelayPool.query cleanup
+  StreamSubscription<String>? eoseSubscription;
 }
