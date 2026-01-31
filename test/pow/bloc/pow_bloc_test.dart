@@ -2,8 +2,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:nostr_client/nostr_client.dart';
 import 'package:nostr_canvas/pow/pow.dart';
+import 'package:nostr_client/nostr_client.dart';
 import 'package:pixel_repository/pixel_repository.dart';
 
 class MockPixelRepository extends Mock implements PixelRepository {}
@@ -272,7 +272,6 @@ void main() {
             position: const Position(0, 0),
             color: Colors.white,
           ),
-          queue: const [],
         ),
         act: (bloc) => bloc.add(const PowQueueSkipped()),
         expect: () => [
@@ -331,7 +330,6 @@ void main() {
       blocTest<PowBloc, PowState>(
         'does nothing when no current pixel',
         build: () => PowBloc(pixelRepository: pixelRepository),
-        seed: () => const PowState(status: PowStatus.idle),
         act: (bloc) => bloc.add(const PowQueueRetried()),
         expect: () => <PowState>[],
       );
