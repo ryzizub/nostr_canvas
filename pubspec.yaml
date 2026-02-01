@@ -18,7 +18,7 @@ dependencies:
   bloc: ^9.2.0
   equatable: ^2.0.8
   flame: ^1.35.0
-  flame_bloc: ^1.12.19
+  flame_bloc: ^1.12.20
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
