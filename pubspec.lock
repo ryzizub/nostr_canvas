@@ -205,10 +205,10 @@ packages:
     dependency: "direct main"
     description:
       name: flame_bloc
-      sha256: aea027e5f72c221ac73a4cb652a726be35aaa7b5dc259374fbcb483d87d86f26
+      sha256: cec04c911d8ed6bf7b2086fb086637c307836d1878bbeb228b0ac4efcb0cf9ce
       url: "https://pub.dev"
     source: hosted
-    version: "1.12.20"
+    version: "1.12.21"
   flutter:
     dependency: "direct main"
     description: flutter
