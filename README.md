@@ -27,7 +27,7 @@ Now imagine that - but **running on Nostr**.
 
 ### Prerequisites
 
-- Flutter SDK ^3.9.0
+- Flutter SDK ^3.41.1
 
 ### Run Locally
 
