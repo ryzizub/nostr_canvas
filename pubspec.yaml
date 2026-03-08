@@ -18,7 +18,7 @@ dependencies:
   auth_repository:
   bloc: ^9.2.0
   equatable: ^2.0.8
-  flame: ^1.35.1
+  flame: ^1.36.0
   flame_bloc: ^1.12.21
   flutter:
     sdk: flutter
