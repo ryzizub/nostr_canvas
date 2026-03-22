@@ -31,7 +31,7 @@ dependencies:
   hydrated_bloc: ^10.1.1
   intl: any
   meta: ^1.16.0
-  nes_ui: ^0.27.0
+  nes_ui: ^0.30.0
   nostr: ^1.5.0
   nostr_client:
   pixel_repository:
