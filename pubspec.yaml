@@ -37,7 +37,7 @@ dependencies:
   pixel_repository:
   profile_repository:
   relay_settings_repository:
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.5.5
   url_launcher: ^6.2.5
 
 dev_dependencies:
