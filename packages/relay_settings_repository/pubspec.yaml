@@ -8,4 +8,4 @@ environment:
 resolution: workspace
 
 dependencies:
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.5.5
